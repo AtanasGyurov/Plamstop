@@ -1,0 +1,36 @@
+:root{--bg:#0b0d12;--card:#121620;--muted:#9aa3b2;--text:#e8eefc;--primary:#6ea8fe;--accent:#8b5cf6;--ring:rgba(110,168,254,.35)}
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;color:var(--text);
+  background:radial-gradient(1200px 600px at 80% -10%, rgba(139,92,246,.18), transparent 50%),
+             radial-gradient(900px 500px at -20% 10%, rgba(110,168,254,.18), transparent 45%),
+             var(--bg)}
+.container{width:min(1100px,92%);margin-inline:auto}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+
+.nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);background:rgba(11,13,18,.6);border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.brand-logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));box-shadow:0 0 0 6px var(--ring)}
+.nav-links{display:flex;gap:18px}
+.nav-links a{color:var(--muted);padding:8px 10px;border-radius:10px}
+.nav-links a.active,.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+
+.hero{display:grid;gap:22px;padding:72px 0 46px}
+.hero h1{margin:0;line-height:1.1;font-size:clamp(32px,4.5vw,48px)}
+.hero p{margin:0;color:var(--muted);font-size:clamp(14px,2.2vw,17px)}
+.cta{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
+
+.btn{padding:12px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));color:var(--text);cursor:pointer}
+.btn-primary{border-color:transparent;background:linear-gradient(135deg,var(--primary),var(--accent))}
+
+.card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+
+.grid-3{display:grid;gap:16px;margin:26px 0 10px;grid-template-columns:repeat(12,1fr)}
+.grid-3>.card{grid-column:span 12}
+@media (min-width:800px){.grid-3>.card{grid-column:span 4}}
+
+.footer{margin-top:56px;padding:24px 0;color:var(--muted);border-top:1px solid rgba(255,255,255,.06)}
+.footer a{color:var(--text)}
