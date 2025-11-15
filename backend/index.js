@@ -1,30 +1,31 @@
-// index.js
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import "dotenv/config";
 
-// Create an Express app
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Simple route
+// Test route
 app.get("/", (req, res) => {
-  res.send("✅ Server is running!");
+  res.json({ message: "Plamstop backend is running 🔥" });
 });
 
-// Connect to MongoDB and start the server
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("✅ Connected to MongoDB Atlas");
-    app.listen(process.env.PORT || 8080, () => {
-      console.log(`🚀 Server running on http://localhost:${process.env.PORT || 8080}`);
-    });
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
-  });
+// Temporary demo products (before Firestore)
+app.get("/api/products", (req, res) => {
+  res.json([
+    {
+      id: "1",
+      name: "Fire extinguisher ABC 6kg",
+      price: 79,
+      category: "extinguishers",
+      isFireSafetyRelated: true
+    }
+  ]);
+});
+
+app.listen(PORT, () => {
+  console.log(`Plamstop backend is listening on port ${PORT}`);
+});

@@ -1,15 +1,11 @@
-# node
-node_modules
-npm-debug.log*
-yarn.lock
-pnpm-lock.yaml
+# backend
+backend/node_modules/
+backend/.env
+backend/serviceAccountKey.json
 
-# env files
-.env
-**/.env
+# frontend
+client/node_modules/
 
-# build output
-**/dist
-**/build
-
-echo "# Plamstop (MERN monorepo)" > README.md
+# general
+.DS_Store
+dist/
