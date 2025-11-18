@@ -7,5 +7,5 @@ backend/serviceAccountKey.json
 client/node_modules/
 
 # general
-.DS_Store
 dist/
+.DS_Store
