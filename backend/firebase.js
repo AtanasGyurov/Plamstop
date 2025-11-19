@@ -1,6 +1,7 @@
 import fs from "fs";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 
 // Зареждаме service account файла
 const serviceAccount = JSON.parse(
@@ -15,5 +16,7 @@ const firebaseApp = initializeApp({
 // Връзка към Firestore с database ID = "plamstop"
 const db = getFirestore(firebaseApp, "plamstop");
 
-// Експортираме db и FieldValue за останалите модули
-export { db, FieldValue };
+// Firebase Admin Auth (за verifyIdToken)
+const auth = getAuth(firebaseApp);
+
+export { db, FieldValue, auth };
