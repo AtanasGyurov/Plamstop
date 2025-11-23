@@ -1,15 +1,17 @@
+// backend/routes/orders.js
 import express from "express";
 import { db, FieldValue } from "../firebase.js";
 import { mapDoc } from "../utils/mapDoc.js";
-import { checkRole, requireAuth } from "../middleware/auth.js";
+import { requireAuth, checkRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
 /**
  * GET /api/orders
- * Временно връща всички поръчки (за тест).
+ * Client: list own orders
+ * For now, returns all orders (can filter later)
  */
-router.get("/orders", async (req, res) => {
+router.get("/", requireAuth, async (req, res) => {
   try {
     const snapshot = await db
       .collection("orders")
@@ -19,31 +21,19 @@ router.get("/orders", async (req, res) => {
     const orders = snapshot.docs.map(mapDoc);
     res.json(orders);
   } catch (err) {
-    console.error("Error getting orders:", err.code, err.message);
+    console.error("Error getting orders:", err);
     res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
 
 /**
  * POST /api/orders
- * Създава поръчка от клиента.
+ * Create new order
  */
-router.post("/orders", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { customerName, customerEmail, customerAddress, note, items } =
       req.body;
-
-    if (!customerName || !customerEmail || !Array.isArray(items)) {
-      return res.status(400).json({
-        error: "customerName, customerEmail and items array are required",
-      });
-    }
-
-    if (items.length === 0) {
-      return res.status(400).json({
-        error: "Order must contain at least one item",
-      });
-    }
 
     const orderData = {
       customerName,
@@ -52,9 +42,8 @@ router.post("/orders", async (req, res) => {
       note: note || "",
       items,
       status: "pending",
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-      // TODO: userId, когато вържем requireAuth и за поръчки
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     const docRef = await db.collection("orders").add(orderData);
@@ -62,62 +51,37 @@ router.post("/orders", async (req, res) => {
 
     res.status(201).json(mapDoc(saved));
   } catch (err) {
-    console.error("Error creating order:", err.code, err.message);
+    console.error("Error creating order:", err);
     res.status(500).json({ error: "Failed to create order" });
   }
 });
 
+/* ============================================================
+   ADMIN ROUTES
+   ============================================================ */
+
 /**
  * GET /api/admin/orders
- * Admin list на всички поръчки.
+ * Admin only
  */
-router.get(
-  "/admin/orders",
-  requireAuth,
-  checkRole("admin"),
-  async (req, res) => {
-    try {
-      const snapshot = await db
-        .collection("orders")
-        .orderBy("createdAt", "desc")
-        .get();
+router.get("/admin/orders", requireAuth, checkRole("admin"), async (req, res) => {
+  try {
+    const snapshot = await db
+      .collection("orders")
+      .orderBy("createdAt", "desc")
+      .get();
 
-      const orders = snapshot.docs.map(mapDoc);
-      res.json(orders);
-    } catch (err) {
-      console.error("Error getting orders:", err.code, err.message);
-      res.status(500).json({ error: "Failed to fetch orders" });
-    }
+    const orders = snapshot.docs.map(mapDoc);
+    res.json(orders);
+  } catch (err) {
+    console.error("Error fetching admin orders:", err);
+    res.status(500).json({ error: "Failed to fetch admin orders" });
   }
-);
-
-/**
- * GET /api/admin/orders/:id
- */
-router.get(
-  "/admin/orders/:id",
-  requireAuth,
-  checkRole("admin"),
-  async (req, res) => {
-    try {
-      const id = req.params.id;
-      const docRef = db.collection("orders").doc(id);
-      const doc = await docRef.get();
-
-      if (!doc.exists) {
-        return res.status(404).json({ error: "Order not found" });
-      }
-
-      res.json(mapDoc(doc));
-    } catch (err) {
-      console.error("Error getting order:", err.code, err.message);
-      res.status(500).json({ error: "Failed to fetch order" });
-    }
-  }
-);
+});
 
 /**
  * PATCH /api/admin/orders/:id/status
+ * Admin update order status
  */
 router.patch(
   "/admin/orders/:id/status",
@@ -128,37 +92,28 @@ router.patch(
       const id = req.params.id;
       const { status } = req.body;
 
-      const allowedStatuses = [
+      const allowed = [
         "pending",
         "confirmed",
         "shipped",
         "completed",
         "cancelled",
       ];
-
-      if (!allowedStatuses.includes(status)) {
-        return res.status(400).json({
-          error: `Status must be one of: ${allowedStatuses.join(", ")}`,
-        });
+      if (!allowed.includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
       }
 
       const docRef = db.collection("orders").doc(id);
-      const doc = await docRef.get();
-
-      if (!doc.exists) {
-        return res.status(404).json({ error: "Order not found" });
-      }
-
       await docRef.update({
         status,
-        updatedAt: FieldValue.serverTimestamp(),
+        updatedAt: new Date(),
       });
 
-      const updatedDoc = await docRef.get();
-      res.json(mapDoc(updatedDoc));
+      const updated = await docRef.get();
+      res.json(mapDoc(updated));
     } catch (err) {
-      console.error("Error updating order status:", err.code, err.message);
-      res.status(500).json({ error: "Failed to update order status" });
+      console.error("Error updating order:", err);
+      res.status(500).json({ error: "Failed to update order" });
     }
   }
 );

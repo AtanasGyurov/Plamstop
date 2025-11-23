@@ -1,6 +1,6 @@
 import React from "react";
 
-export function Cart({ items, onChangeQty, onRemove, onClear }) {
+function Cart({ items, onChangeQty, onRemove, onClear }) {
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -16,7 +16,7 @@ export function Cart({ items, onChangeQty, onRemove, onClear }) {
           <ul>
             {items.map((item) => (
               <li key={item.id} style={{ marginBottom: "0.5rem" }}>
-                <strong>{item.name}</strong> – {item.price} лв. ×{" "}
+                <strong>{item.name}</strong> – {item.price} лв ×{" "}
                 <input
                   type="number"
                   min="1"
@@ -38,12 +38,16 @@ export function Cart({ items, onChangeQty, onRemove, onClear }) {
               </li>
             ))}
           </ul>
+
           <p>
             <strong>Total:</strong> {total} лв.
           </p>
+
           <button onClick={onClear}>Clear cart</button>
         </>
       )}
     </div>
   );
 }
+
+export default Cart;

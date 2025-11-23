@@ -1,88 +1,86 @@
-const API_BASE = "http://localhost:5000/api";
+// client/src/api.js
+const API = "http://localhost:5000/api";
 
-// Helper: parse JSON or throw readable error
-async function handleResponse(res) {
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Request failed with status ${res.status}`);
-  }
-  return res.json();
-}
+export const api = {
+  // PRODUCTS
+  async getProducts() {
+    const res = await fetch(`${API}/products`);
+    return res.json();
+  },
 
-/* ===========================
-   PRODUCTS
-=========================== */
+  async getProduct(id) {
+    const res = await fetch(`${API}/products/${id}`);
+    return res.json();
+  },
 
-// GET /api/products
-export async function fetchProducts() {
-  const res = await fetch(`${API_BASE}/products`);
-  return handleResponse(res);
-}
+  // ORDERS (client)
+  async createOrder(data) {
+    const res = await fetch(`${API}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
 
-/* ===========================
-   ORDERS
-=========================== */
+  // ADMIN ORDERS
+  async getAdminOrders(token) {
+    const res = await fetch(`${API}/admin/orders`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.json();
+  },
 
-// POST /api/orders
-export async function createOrder(orderData) {
-  const res = await fetch(`${API_BASE}/orders`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(orderData),
-  });
-  return handleResponse(res);
-}
+  // AUTH + ROLES
+  async syncUserProfile(token) {
+    const res = await fetch(`${API}/auth/sync`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.json();
+  },
 
-/* ===========================
-   AUTH + USER PROFILE
-=========================== */
+  async getMe() {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.json();
+  },
 
-// POST /api/auth/sync
-// Syncs user to Firestore (creates user profile if missing)
-export async function syncUserProfile(token) {
-  const res = await fetch(`${API_BASE}/auth/sync`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return handleResponse(res);
-}
+  // ADMIN PRODUCT CRUD (използваме localStorage token)
+  async createProduct(data) {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API}/products`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
 
-// GET /api/me
-// Returns logged-in user profile: { uid, email, name, role }
-export async function fetchMe(token) {
-  const res = await fetch(`${API_BASE}/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return handleResponse(res);
-}
+  async updateProduct(id, data) {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API}/products/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
 
-/* ===========================
-   ADMIN
-=========================== */
-
-// GET /api/admin/orders
-export async function fetchAdminOrders(token) {
-  const res = await fetch(`${API_BASE}/admin/orders`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return handleResponse(res);
-}
-
-// PATCH /api/admin/orders/:id/status
-export async function updateOrderStatus(id, status, token) {
-  const res = await fetch(`${API_BASE}/admin/orders/${id}/status`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ status }),
-  });
-  return handleResponse(res);
-}
+  async deleteProduct(id) {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API}/products/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.json();
+  },
+};

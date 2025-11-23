@@ -1,172 +1,93 @@
+// backend/routes/products.js
 import express from "express";
-import { db, FieldValue } from "../firebase.js";
+import { db } from "../firebase.js";
 import { mapDoc } from "../utils/mapDoc.js";
+import { requireAuth, checkRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
 /**
  * GET /api/products
- * Optional query params:
- *  - category (string)
- *  - limit (number)
+ * Public – returns all products
  */
-router.get("/products", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { category, limit } = req.query;
-
-    let query = db.collection("products");
-
-    if (category) {
-      query = query.where("category", "==", category);
-    }
-
-    let snapshot;
-    if (limit) {
-      const limitNum = Number(limit);
-      snapshot = await query.limit(isNaN(limitNum) ? 50 : limitNum).get();
-    } else {
-      snapshot = await query.get();
-    }
-
+    const snapshot = await db.collection("products").get();
     const products = snapshot.docs.map(mapDoc);
-    res.json(products);
+    return res.json(products);
   } catch (err) {
-    console.error("Error getting products:", err.code, err.message);
-    res.status(500).json({ error: "Failed to fetch products" });
-  }
-});
-
-/**
- * GET /api/products/:id
- */
-router.get("/products/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const docRef = db.collection("products").doc(id);
-    const doc = await docRef.get();
-
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    res.json(mapDoc(doc));
-  } catch (err) {
-    console.error("Error getting product:", err.code, err.message);
-    res.status(500).json({ error: "Failed to fetch product" });
+    console.error("Error loading products:", err);
+    return res.status(500).json({ error: "Failed to load products" });
   }
 });
 
 /**
  * POST /api/products
- * (по-късно admin-only)
+ * Admin only – create product
  */
-router.post("/products", async (req, res) => {
+router.post("/", requireAuth, checkRole("admin"), async (req, res) => {
   try {
-    const {
-      name,
-      price,
-      category,
-      description,
-      imageUrl,
-      stock,
-      isFireSafetyRelated,
-    } = req.body;
+    const data = req.body;
 
-    if (!name || price == null) {
-      return res.status(400).json({ error: "Name and price are required" });
-    }
+    const docRef = await db.collection("products").add({
+      name: data.name,
+      price: Number(data.price),
+      category: data.category || "",
+      stock: Number(data.stock || 0),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
 
-    const productData = {
-      name,
-      price,
-      category: category || "other",
-      description: description || "",
-      imageUrl: imageUrl || "",
-      stock: stock ?? 0,
-      isFireSafetyRelated: !!isFireSafetyRelated,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
-    };
-
-    const docRef = await db.collection("products").add(productData);
-    const saved = await docRef.get();
-
-    res.status(201).json(mapDoc(saved));
+    const doc = await docRef.get();
+    return res.status(201).json(mapDoc(doc));
   } catch (err) {
-    console.error("Error creating product:", err.code, err.message);
-    res.status(500).json({ error: "Failed to create product" });
+    console.error("Error creating product:", err);
+    return res.status(500).json({ error: "Failed to create product" });
   }
 });
 
 /**
- * PUT /api/products/:id
- * Update existing product fields
+ * PATCH /api/products/:id
+ * Admin only – update product
  */
-router.put("/products/:id", async (req, res) => {
+router.patch("/:id", requireAuth, checkRole("admin"), async (req, res) => {
   try {
     const id = req.params.id;
-
-    const allowedFields = [
-      "name",
-      "price",
-      "category",
-      "description",
-      "imageUrl",
-      "stock",
-      "isFireSafetyRelated",
-    ];
-
-    const updates = {};
-    for (const key of allowedFields) {
-      if (req.body[key] !== undefined) {
-        updates[key] = req.body[key];
-      }
-    }
-
-    if (Object.keys(updates).length === 0) {
-      return res
-        .status(400)
-        .json({ error: "No valid fields provided for update" });
-    }
-
-    updates.updatedAt = FieldValue.serverTimestamp();
+    const data = req.body;
 
     const docRef = db.collection("products").doc(id);
-    const doc = await docRef.get();
+    const docSnap = await docRef.get();
 
-    if (!doc.exists) {
+    if (!docSnap.exists) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    await docRef.update(updates);
-    const updatedDoc = await docRef.get();
+    await docRef.update({
+      ...data,
+      updatedAt: new Date(),
+    });
 
-    res.json(mapDoc(updatedDoc));
+    const updatedDoc = await docRef.get();
+    return res.json(mapDoc(updatedDoc));
   } catch (err) {
-    console.error("Error updating product:", err.code, err.message);
-    res.status(500).json({ error: "Failed to update product" });
+    console.error("Error updating product:", err);
+    return res.status(500).json({ error: "Failed to update product" });
   }
 });
 
 /**
  * DELETE /api/products/:id
+ * Admin only – delete product
  */
-router.delete("/products/:id", async (req, res) => {
+router.delete("/:id", requireAuth, checkRole("admin"), async (req, res) => {
   try {
     const id = req.params.id;
-    const docRef = db.collection("products").doc(id);
-    const doc = await docRef.get();
 
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    await docRef.delete();
-
-    res.json({ message: "Product deleted successfully", id });
+    await db.collection("products").doc(id).delete();
+    return res.json({ success: true });
   } catch (err) {
-    console.error("Error deleting product:", err.code, err.message);
-    res.status(500).json({ error: "Failed to delete product" });
+    console.error("Error deleting product:", err);
+    return res.status(500).json({ error: "Failed to delete product" });
   }
 });
 

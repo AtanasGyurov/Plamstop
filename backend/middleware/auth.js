@@ -1,62 +1,83 @@
-import { auth, db } from "../firebase.js";
+// backend/middleware/auth.js
+import { auth } from "../firebase.js";
+import { db } from "../firebase.js";
 
-// Проверява Firebase ID token от header: Authorization: Bearer <token>
-export async function requireAuth(req, res, next) {
+//
+// Extract token helper
+//
+function getToken(req) {
+  const header = req.headers.authorization || "";
+  if (!header.startsWith("Bearer ")) return null;
+  return header.substring(7);
+}
+
+//
+// Used by routes that simply require user to be logged in
+//
+export async function checkAuth(req, res, next) {
+  const token = getToken(req);
+
+  if (!token) {
+    return res.status(401).json({ error: "Missing Authorization token" });
+  }
+
   try {
-    const header = req.headers.authorization || "";
-    if (!header.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ error: "Missing or invalid Authorization header" });
-    }
-
-    const token = header.substring("Bearer ".length).trim();
-    if (!token) {
-      return res.status(401).json({ error: "Missing token" });
-    }
-
     const decoded = await auth.verifyIdToken(token);
-    req.user = {
-      uid: decoded.uid,
-      email: decoded.email || "",
-      name: decoded.name || "",
-      raw: decoded,
-    };
-
+    req.user = decoded;
     next();
   } catch (err) {
-    console.error("Auth error:", err.code, err.message);
+    console.error("checkAuth error:", err);
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 }
 
-// Проверява роля в колекцията users (role: "admin" и т.н.)
+//
+// Used for routes requiring authentication AND attaching user
+//
+export async function requireAuth(req, res, next) {
+  const token = getToken(req);
+
+  if (!token) {
+    return res.status(401).json({ error: "Missing Authorization token" });
+  }
+
+  try {
+    const decoded = await auth.verifyIdToken(token);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    console.error("requireAuth error:", err);
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+}
+
+//
+// Used for admin-only routes
+//
 export function checkRole(requiredRole) {
   return async (req, res, next) => {
     try {
-      if (!req.user || !req.user.uid) {
+      if (!req.user) {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
-      const userRef = db.collection("users").doc(req.user.uid);
-      const doc = await userRef.get();
+      const uid = req.user.uid;
+      const userDoc = await db.collection("users").doc(uid).get();
 
-      if (!doc.exists) {
+      if (!userDoc.exists) {
         return res.status(403).json({ error: "User profile not found" });
       }
 
-      const data = doc.data();
-      const role = data.role || "client";
+      const role = userDoc.data().role || "client";
 
       if (role !== requiredRole) {
-        return res.status(403).json({ error: "Forbidden: insufficient role" });
+        return res.status(403).json({ error: "Insufficient permissions" });
       }
 
-      req.userRole = role;
       next();
     } catch (err) {
-      console.error("Role check error:", err.code, err.message);
-      return res.status(500).json({ error: "Role check failed" });
+      console.error("checkRole error:", err);
+      res.status(500).json({ error: "Role verification failed" });
     }
   };
 }
