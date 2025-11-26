@@ -1,4 +1,3 @@
-// backend/routes/auth.js
 import express from "express";
 import { db } from "../firebase.js";
 import { checkAuth } from "../middleware/auth.js";
@@ -7,29 +6,28 @@ const router = express.Router();
 
 /**
  * POST /api/auth/sync
- * Създава/обновява запис в users колекцията за текущия потребител.
- * Използва ролята, която вече имаш ръчно задали в Firestore (role: "admin" и т.н.)
+ * Store users by UID (CORRECT)
  */
 router.post("/sync", checkAuth, async (req, res) => {
   try {
-    const { uid, email, name } = {
-      uid: req.user.uid,
-      email: req.user.email || null,
-      name: req.user.name || null,
-    };
+    const uid = req.user.uid;
+    const email = req.user.email;
+    const name = req.user.name || null;
 
     const userRef = db.collection("users").doc(uid);
     const snap = await userRef.get();
 
     if (!snap.exists) {
+      // new user
       await userRef.set({
+        uid,
         email,
         name,
-        role: "client",
+        role: "client",   // default
         createdAt: new Date(),
       });
     } else {
-      // не пипаме role, само обновяваме email/name ако са се променили
+      // update email + name only
       await userRef.set(
         {
           email,
@@ -40,7 +38,9 @@ router.post("/sync", checkAuth, async (req, res) => {
       );
     }
 
-    res.json({ ok: true });
+    const finalData = (await userRef.get()).data();
+    res.json(finalData);
+
   } catch (err) {
     console.error("auth/sync error:", err);
     res.status(500).json({ error: "Failed to sync user" });
@@ -49,24 +49,20 @@ router.post("/sync", checkAuth, async (req, res) => {
 
 /**
  * GET /api/auth/me
- * Връща потребителя от users колекцията + role
+ * Return user by UID (CORRECT)
  */
 router.get("/me", checkAuth, async (req, res) => {
   try {
     const uid = req.user.uid;
+
     const userRef = db.collection("users").doc(uid);
     const snap = await userRef.get();
 
     if (!snap.exists) {
-      // ако няма запис, връщаме минимална информация
-      return res.json({
-        id: uid,
-        email: req.user.email || null,
-        role: "client",
-      });
+      return res.json({ uid, email: req.user.email, role: "client" });
     }
 
-    res.json({ id: snap.id, ...snap.data() });
+    res.json(snap.data());
   } catch (err) {
     console.error("auth/me error:", err);
     res.status(500).json({ error: "Failed to load user profile" });

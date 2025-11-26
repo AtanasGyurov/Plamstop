@@ -1,4 +1,5 @@
 // client/src/api.js
+
 const API = "http://localhost:5000/api";
 
 export const api = {
@@ -22,6 +23,22 @@ export const api = {
     });
     return res.json();
   },
+    async getMyOrders(token) {
+    const res = await fetch(`${API}/orders`, {
+      headers: {
+      Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+async cancelOrder(id, token) {
+  const res = await fetch(`http://localhost:5000/api/orders/${id}/cancel`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+},
 
   // ADMIN ORDERS
   async getAdminOrders(token) {
@@ -48,7 +65,7 @@ export const api = {
     return res.json();
   },
 
-  // ADMIN PRODUCT CRUD (използваме localStorage token)
+  // ADMIN PRODUCT CRUD
   async createProduct(data) {
     const token = localStorage.getItem("token");
     const res = await fetch(`${API}/products`, {

@@ -1,53 +1,62 @@
 import { useEffect, useState } from "react";
-import { api } from "../api";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  async function load() {
-    setLoading(true);
-    try {
-      const data = await api.getAdminOrders();
-      setOrders(data);
-    } catch (err) {
-      console.error("Failed to load orders", err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    load();
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.error("No token found — admin requests blocked.");
+      setLoading(false);
+      return;
+    }
+
+    const url = "http://localhost:5000/api/orders/admin/orders";
+
+    fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load");
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) setOrders(data);
+        else setOrders([]);
+      })
+      .catch((err) => {
+        console.error("Admin orders fetch error:", err);
+        setOrders([]);
+      })
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) return <p>Loading orders...</p>;
+  if (orders.length === 0) return <p>No orders found.</p>;
 
   return (
     <div>
-      <h1>All Orders</h1>
-      <button onClick={load} disabled={loading}>
-        {loading ? "Loading…" : "Refresh"}
-      </button>
-
-      <ul>
-        {orders.map((o) => (
-          <li key={o.id} style={{ marginBottom: "1rem" }}>
-            <strong>Order ID:</strong> {o.id} <br />
-            <strong>Name:</strong> {o.customerName} <br />
-            <strong>Email:</strong> {o.customerEmail} <br />
-            <strong>Status:</strong> {o.status} <br />
-
-            <strong>Items:</strong>
-            <ul>
-              {o.items.map((i, idx) => (
-                <li key={idx}>
-                  {i.productId} — qty {i.quantity}
-                </li>
-              ))}
-            </ul>
-            <hr />
-          </li>
-        ))}
-      </ul>
+      <h1>Orders</h1>
+      {orders.map((o) => (
+        <div key={o.id} style={{ border: "1px solid #666", padding: 10, marginBottom: 10 }}>
+          <strong>ID:</strong> {o.id}<br />
+          <strong>Name:</strong> {o.customerName}<br />
+          <strong>Email:</strong> {o.customerEmail}<br />
+          <strong>Total:</strong> {o.totalAmount} лв<br />
+          <strong>Status:</strong> {o.status}<br />
+          <strong>Items:</strong>
+          <ul>
+            {o.items?.map((i) => (
+              <li key={i.id}>{i.name} — {i.quantity} × {i.price} лв</li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 }

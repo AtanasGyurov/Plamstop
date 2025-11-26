@@ -1,54 +1,60 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../firebaseClient";
-import { onAuthStateChanged, getIdToken } from "firebase/auth";
-import { api } from "../api.js";
+import { api } from "../api";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState("guest"); // guest | client | admin
-  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setLoading(true);
-
-      try {
-        setUser(user);
-
-        if (user) {
-          const token = await getIdToken(user);
-          localStorage.setItem("token", token);
-
-          // sync profile in backend
-          await api.syncUserProfile(token);
-
-          // get role from backend
-          const me = await api.getMe();
-          setRole(me.role || "client");
-        } else {
-          localStorage.removeItem("token");
-          setRole("guest");
-        }
-      } catch (err) {
-        console.error("AuthContext error:", err);
-        setRole("guest");
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setUser(null);
+        setRole(null);
+        setToken(null);
+        localStorage.removeItem("token");
+        return;
       }
 
-      setLoading(false);
+      const token = await firebaseUser.getIdToken();
+      localStorage.setItem("token", token);
+      setToken(token);
+
+      // Sync user
+      await api.syncUserProfile(token);
+
+      // THEN fetch full profile (including role)
+      const profile = await api.getMe();
+
+      setUser({
+        email: firebaseUser.email,
+        uid: firebaseUser.uid,
+      });
+
+      setRole(profile.role || "client");
     });
 
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
-  const value = {
-    user,
-    role,
-    loading,
-  };
+  async function logout() {
+    await signOut(auth);
+    localStorage.removeItem("token");
+    setUser(null);
+    setRole(null);
+    setToken(null);
+    window.location.href = "/";
+  }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, role, token, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

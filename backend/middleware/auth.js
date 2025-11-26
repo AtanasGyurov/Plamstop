@@ -2,28 +2,24 @@
 import { auth } from "../firebase.js";
 import { db } from "../firebase.js";
 
-//
-// Extract token helper
-//
+// Extract Bearer token
 function getToken(req) {
   const header = req.headers.authorization || "";
   if (!header.startsWith("Bearer ")) return null;
   return header.substring(7);
 }
 
-//
-// Used by routes that simply require user to be logged in
-//
+/**
+ * BASIC TOKEN VERIFICATION
+ */
 export async function checkAuth(req, res, next) {
   const token = getToken(req);
-
-  if (!token) {
+  if (!token)
     return res.status(401).json({ error: "Missing Authorization token" });
-  }
 
   try {
     const decoded = await auth.verifyIdToken(token);
-    req.user = decoded;
+    req.user = decoded; // contains uid + email
     next();
   } catch (err) {
     console.error("checkAuth error:", err);
@@ -31,15 +27,13 @@ export async function checkAuth(req, res, next) {
   }
 }
 
-//
-// Used for routes requiring authentication AND attaching user
-//
+/**
+ * PROTECTED ROUTE AUTH
+ */
 export async function requireAuth(req, res, next) {
   const token = getToken(req);
-
-  if (!token) {
+  if (!token)
     return res.status(401).json({ error: "Missing Authorization token" });
-  }
 
   try {
     const decoded = await auth.verifyIdToken(token);
@@ -51,29 +45,40 @@ export async function requireAuth(req, res, next) {
   }
 }
 
-//
-// Used for admin-only routes
-//
+/**
+ * ROLE CHECK USING UID
+ */
 export function checkRole(requiredRole) {
   return async (req, res, next) => {
     try {
-      if (!req.user) {
+      if (!req.user || !req.user.uid) {
+        console.log("❌ No req.user present");
         return res.status(401).json({ error: "Not authenticated" });
       }
 
       const uid = req.user.uid;
-      const userDoc = await db.collection("users").doc(uid).get();
+      console.log("🔍 Checking role for UID:", uid);
 
-      if (!userDoc.exists) {
+      const userRef = db.collection("users").doc(uid);
+      const snap = await userRef.get();
+
+      if (!snap.exists) {
+        console.log("❌ User doc NOT FOUND:", uid);
         return res.status(403).json({ error: "User profile not found" });
       }
 
-      const role = userDoc.data().role || "client";
+      const data = snap.data();
+      console.log("📄 Loaded user doc data:", data);
+
+      const role = data.role || "client";
+      console.log("🎭 ROLE FROM FIRESTORE:", role);
 
       if (role !== requiredRole) {
+        console.log("❌ Permission denied. Required:", requiredRole, "Got:", role);
         return res.status(403).json({ error: "Insufficient permissions" });
       }
 
+      console.log("✅ Role verified successfully.");
       next();
     } catch (err) {
       console.error("checkRole error:", err);

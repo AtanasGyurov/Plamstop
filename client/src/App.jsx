@@ -9,9 +9,10 @@ import AdminOrders from "./admin/AdminOrders";
 import AddProduct from "./admin/AddProduct";
 import EditProduct from "./admin/EditProduct";
 import AdminLayout from "./admin/AdminLayout";
+import MyOrders from "./pages/MyOrders";
 
 function Header() {
-  const { user, role } = useAuth();
+  const { user, role, logout } = useAuth();
 
   return (
     <header style={{ padding: "1rem", borderBottom: "1px solid #444" }}>
@@ -24,19 +25,46 @@ function Header() {
       ) : (
         <div>
           Logged in as <strong>{user.email}</strong> ({role})
+
           <Link to="/">
             <button style={{ marginLeft: "1rem" }}>Shop</button>
           </Link>
+
+          {/* SHOW TO NORMAL USERS */}
+          {role !== "admin" && (
+            <Link to="/my-orders">
+              <button style={{ marginLeft: "1rem" }}>My Orders</button>
+            </Link>
+          )}
+
+          {/* SHOW TO ADMINS */}
           {role === "admin" && (
             <Link to="/admin">
               <button style={{ marginLeft: "1rem" }}>Admin</button>
             </Link>
           )}
+
+          <button
+            style={{
+              marginLeft: "1rem",
+              backgroundColor: "#c62828",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer"
+            }}
+            onClick={logout}
+          >
+            Logout
+          </button>
         </div>
       )}
     </header>
   );
 }
+
+
 
 export default function App() {
   return (
@@ -51,13 +79,20 @@ export default function App() {
           {/* AUTH */}
           <Route path="/auth/*" element={<AuthPage />} />
 
+          <Route path="/my-orders" element={<MyOrders />} />
+
           {/* ADMIN (protected inside AdminLayout) */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
+
+            {/* FIXED ADMIN ROUTES */}
             <Route path="products" element={<AdminProducts />} />
-            <Route path="products/add" element={<AddProduct />} />
-            <Route path="products/edit/:id" element={<EditProduct />} />
+            <Route path="products/new" element={<AddProduct />} />
+            <Route path="products/:id/edit" element={<EditProduct />} />
+
             <Route path="orders" element={<AdminOrders />} />
+
+            
           </Route>
         </Routes>
       </BrowserRouter>
