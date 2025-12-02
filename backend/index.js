@@ -1,13 +1,10 @@
 // backend/index.js
 import express from "express";
 import cors from "cors";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
 
 import productsRoutes from "./routes/products.js";
 import ordersRoutes from "./routes/orders.js";
 import authRoutes from "./routes/auth.js";
-import usersRoutes from "./routes/users.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,9 +12,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Log every request (useful for debugging)
+// Log every request (for debugging)
 app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
+  console.log(`[${req.method}] ${req.url}`, "Auth:", req.headers.authorization);
   next();
 });
 
@@ -25,7 +22,6 @@ app.use((req, res, next) => {
 app.use("/api/products", productsRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", usersRoutes);
 
 // Default route
 app.get("/", (req, res) => {

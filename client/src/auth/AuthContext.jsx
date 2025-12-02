@@ -1,6 +1,7 @@
+// client/src/auth/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../firebaseClient";
-import { api } from "../api";
+import { getMe, syncUserProfile } from "../api";   // ✅ FIXED — REMOVE "api"
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const AuthContext = createContext();
@@ -20,15 +21,16 @@ export function AuthProvider({ children }) {
         return;
       }
 
+      // Fetch token
       const token = await firebaseUser.getIdToken();
-      localStorage.setItem("token", token);
       setToken(token);
+      localStorage.setItem("token", token);
 
-      // Sync user
-      await api.syncUserProfile(token);
+      // 🔥 Sync user → backend creates Firestore user doc
+      await syncUserProfile();
 
-      // THEN fetch full profile (including role)
-      const profile = await api.getMe();
+      // 🔥 Fetch extended user profile afterwards
+      const profile = await getMe();
 
       setUser({
         email: firebaseUser.email,
@@ -43,10 +45,10 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     await signOut(auth);
-    localStorage.removeItem("token");
     setUser(null);
     setRole(null);
     setToken(null);
+    localStorage.removeItem("token");
     window.location.href = "/";
   }
 

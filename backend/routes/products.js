@@ -2,7 +2,7 @@
 import express from "express";
 import { db } from "../firebase.js";
 import { mapDoc } from "../utils/mapDoc.js";
-import { requireAuth, checkRole } from "../middleware/auth.js";
+import { checkAuth, checkRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
  * POST /api/products
  * Admin only – create product
  */
-router.post("/", requireAuth, checkRole("admin"), async (req, res) => {
+router.post("/", checkAuth, checkRole("admin"), async (req, res) => {
   try {
     const data = req.body;
 
@@ -50,7 +50,7 @@ router.post("/", requireAuth, checkRole("admin"), async (req, res) => {
  * PATCH /api/products/:id
  * Admin only – update product
  */
-router.patch("/:id", requireAuth, checkRole("admin"), async (req, res) => {
+router.patch("/:id", checkAuth, checkRole("admin"), async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
@@ -79,7 +79,7 @@ router.patch("/:id", requireAuth, checkRole("admin"), async (req, res) => {
  * DELETE /api/products/:id
  * Admin only – delete product
  */
-router.delete("/:id", requireAuth, checkRole("admin"), async (req, res) => {
+router.delete("/:id", checkAuth, checkRole("admin"), async (req, res) => {
   try {
     const id = req.params.id;
 

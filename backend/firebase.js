@@ -11,7 +11,9 @@ const firebaseApp = initializeApp({
   credential: cert(serviceAccount),
 });
 
+// FIXED: Use default Firestore DB (no name override)
 const db = getFirestore(firebaseApp);
+
 const auth = getAuth(firebaseApp);
 
 export { db, FieldValue, auth };

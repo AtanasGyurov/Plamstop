@@ -1,45 +1,57 @@
-import { useState } from "react";
-import { api } from "../api";
-import { useNavigate } from "react-router-dom";
+// client/src/admin/AdminProducts.jsx
 
-export default function AddProduct() {
-  const nav = useNavigate();
+import { useEffect, useState } from "react";
+import api from "../api";        // ✅ FIXED — default import
+import { Link } from "react-router-dom";
 
-  const [form, setForm] = useState({
-    name: "",
-    price: "",
-    description: "",
-    category: "",
-    image: ""
-  });
+export default function AdminProducts() {
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState("");
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await api.get("/products");   // ✅ CALL WORKS
+        setProducts(res.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load products");
+      }
+    }
 
-  async function create() {
-    await api.createProduct(form);
-    nav("/admin/products");
+    load();
+  }, []);
+
+  async function deleteProduct(id) {
+    if (!window.confirm("Delete product?")) return;
+
+    try {
+      await api.delete(`/products/${id}`);  // ✅ DELETE works
+      setProducts(products.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete product");
+    }
   }
 
   return (
     <div>
-      <h1>Add Product</h1>
+      <h1>Admin – Products</h1>
+      <Link to="/admin/products/add">Add Product</Link>
 
-      {Object.keys(form).map((key) => (
-        <div key={key} style={{ marginBottom: "10px" }}>
-          <label>{key}: </label>
-          <input
-            name={key}
-            value={form[key]}
-            onChange={handleChange}
-            style={{ padding: "5px", width: "250px" }}
-          />
-        </div>
-      ))}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <button onClick={create}>Create Product</button>
+      <ul>
+        {products.map((p) => (
+          <li key={p.id} style={{ margin: "10px 0" }}>
+            {p.name} — ${p.price}
+            <Link to={`/admin/products/${p.id}`}> Edit </Link>
+            <button onClick={() => deleteProduct(p.id)}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
-

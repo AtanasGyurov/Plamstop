@@ -1,6 +1,7 @@
 import express from "express";
 import { db, FieldValue } from "../firebase.js";
-import { requireAuth } from "../middleware/auth.js";
+import { checkAuth } from "../middleware/auth.js";
+
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const router = express.Router();
  * POST /api/auth/sync
  * Създава/актуализира профил в users за логнатия user.
  */
-router.post("/auth/sync", requireAuth, async (req, res) => {
+router.post("/auth/sync", checkAuth, async (req, res) => {
   try {
     const { uid, email, name } = req.user;
     const ref = db.collection("users").doc(uid);
@@ -40,7 +41,7 @@ router.post("/auth/sync", requireAuth, async (req, res) => {
  * GET /api/me
  * Връща uid/email/role за текущия user.
  */
-router.get("/me", requireAuth, async (req, res) => {
+router.get("/me", checkAuth, async (req, res) => {
   try {
     const { uid, email } = req.user;
     const ref = db.collection("users").doc(uid);

@@ -1,128 +1,92 @@
-// backend/routes/orders.js
-
 import express from "express";
 import { db } from "../firebase.js";
 import { mapDoc } from "../utils/mapDoc.js";
-import { requireAuth, checkRole } from "../middleware/auth.js";
+import { checkAuth, checkRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-/**
- * GET /api/orders  (User: list own orders)
- */
-router.get("/", requireAuth, async (req, res) => {
+/** USER — GET OWN ORDERS */
+router.get("/", checkAuth, async (req, res) => {
   try {
-    const userEmail = req.user.email;
+    const email = req.user.email;
 
-    const snapshot = await db
+    const snap = await db
       .collection("orders")
-      .where("customerEmail", "==", userEmail)
+      .where("customerEmail", "==", email)
       .orderBy("createdAt", "desc")
-      .get()
-      .catch((err) => {
-        console.error("Firestore user order error:", err);
-        return { docs: [] };
-      });
+      .get();
 
-    res.json(snapshot.docs.map(mapDoc));
+    res.json(snap.docs.map(mapDoc));
   } catch (err) {
-    console.error("Error getting user orders:", err);
+    console.error("User order error:", err);
     res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
 
-/**
- * POST /api/orders  (Create new order)
- */
+/** PUBLIC — CREATE ORDER */
 router.post("/", async (req, res) => {
   try {
-    const {
-      customerName,
-      customerEmail,
-      customerAddress,
-      note,
-      items,
-      totalAmount,
-      createdAt,
-    } = req.body;
+    const data = req.body;
 
-    const orderData = {
-      customerName,
-      customerEmail,
-      customerAddress,
-      note,
-      items,
-      totalAmount,
+    const order = {
+      ...data,
       status: "pending",
-      createdAt: createdAt ? new Date(createdAt) : new Date(),
+      createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    const docRef = await db.collection("orders").add(orderData);
-    const saved = await docRef.get();
+    const ref = await db.collection("orders").add(order);
+    const saved = await ref.get();
 
     res.status(201).json(mapDoc(saved));
   } catch (err) {
-    console.error("Error creating order:", err);
+    console.error("Create order error:", err);
     res.status(500).json({ error: "Failed to create order" });
   }
 });
 
-/**
- * USER CANCEL ORDER
- */
-router.patch("/:id/cancel", requireAuth, async (req, res) => {
+/** USER — CANCEL ORDER */
+router.patch("/:id/cancel", checkAuth, async (req, res) => {
   try {
     const id = req.params.id;
+    const ref = db.collection("orders").doc(id);
+    const doc = await ref.get();
 
-    const docRef = db.collection("orders").doc(id);
-    const snapshot = await docRef.get();
+    if (!doc.exists) return res.status(404).json({ error: "Order not found" });
 
-    if (!snapshot.exists) {
-      return res.status(404).json({ error: "Order not found" });
-    }
+    const order = doc.data();
 
-    const order = snapshot.data();
-
-    if (order.customerEmail !== req.user.email) {
+    if (order.customerEmail !== req.user.email)
       return res.status(403).json({ error: "Not your order" });
-    }
 
-    if (order.status !== "pending" && order.status !== "confirmed") {
-      return res.status(400).json({ error: "Order cannot be cancelled" });
-    }
+    if (!["pending", "confirmed"].includes(order.status))
+      return res.status(400).json({ error: "Cannot cancel" });
 
-    await docRef.update({
+    await ref.update({
       status: "cancelled",
       updatedAt: new Date(),
     });
 
-    const updated = await docRef.get();
+    const updated = await ref.get();
     res.json(mapDoc(updated));
   } catch (err) {
-    console.error("Cancel order error:", err);
+    console.error("Cancel error:", err);
     res.status(500).json({ error: "Failed to cancel order" });
   }
 });
 
-/**
- * ADMIN GET ALL ORDERS
- */
-router.get("/admin/orders", requireAuth, checkRole("admin"), async (req, res) => {
+/** ADMIN — ALL ORDERS */
+router.get("/admin/orders", checkAuth, checkRole("admin"), async (req, res) => {
   try {
-    const snapshot = await db
+    const snap = await db
       .collection("orders")
       .orderBy("createdAt", "desc")
-      .get()
-      .catch((err) => {
-        console.error("Firestore admin order error:", err);
-        return { docs: [] };
-      });
+      .get();
 
-    res.json(snapshot.docs.map(mapDoc));
+    res.json(snap.docs.map(mapDoc));
   } catch (err) {
-    console.error("Error fetching admin orders:", err);
-    res.status(500).json({ error: "Failed to fetch admin orders" });
+    console.error("Admin orders error:", err);
+    res.status(500).json({ error: "Failed to fetch all orders" });
   }
 });
 

@@ -1,5 +1,7 @@
+// client/src/admin/EditProduct.jsx
+
 import { useEffect, useState } from "react";
-import { api } from "../api";
+import api from "../api";                     // ✅ DEFAULT IMPORT
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function EditProduct() {
@@ -7,11 +9,23 @@ export default function EditProduct() {
   const nav = useNavigate();
 
   const [product, setProduct] = useState(null);
+  const [error, setError] = useState("");
 
+  // Load product
   useEffect(() => {
-    api.getProduct(id).then(setProduct);
+    async function load() {
+      try {
+        const res = await api.get(`/products/${id}`);   // ✅ FIXED
+        setProduct(res.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load product");
+      }
+    }
+    load();
   }, [id]);
 
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!product) return <p>Loading...</p>;
 
   function handleChange(e) {
@@ -19,14 +33,24 @@ export default function EditProduct() {
   }
 
   async function save() {
-    await api.updateProduct(id, product);
-    nav("/admin/products");
+    try {
+      await api.patch(`/products/${id}`, product);  // ✅ FIXED
+      nav("/admin/products");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save product");
+    }
   }
 
   async function remove() {
-    if (window.confirm("Delete this product?")) {
-      await api.deleteProduct(id);
+    if (!window.confirm("Delete this product?")) return;
+
+    try {
+      await api.delete(`/products/${id}`);          // ✅ FIXED
       nav("/admin/products");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete product");
     }
   }
 
@@ -51,6 +75,7 @@ export default function EditProduct() {
       <button onClick={save} style={{ marginRight: "10px" }}>
         Save
       </button>
+
       <button onClick={remove} style={{ color: "red" }}>
         Delete
       </button>
