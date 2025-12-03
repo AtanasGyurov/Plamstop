@@ -15,14 +15,16 @@ router.post("/sync", checkAuth, async (req, res) => {
     const doc = await ref.get();
 
     if (!doc.exists) {
+      // Create user ONLY ONCE
       await ref.set({
         uid,
         email: email || "",
         name: name || "",
-        role: "client",
+        role: "client", // default
         createdAt: FieldValue.serverTimestamp(),
       });
     } else {
+      // Update email and name — DO NOT UPDATE ROLE
       await ref.update({
         email: email || doc.data().email,
         name: name || doc.data().name,

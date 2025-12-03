@@ -1,7 +1,7 @@
 // client/src/pages/MyOrders.jsx
 
 import { useEffect, useState } from "react";
-import api, { getMyOrders } from "../api";   // ✅ FIXED IMPORT
+import api from "../api";                // ✅ Only use api instance
 import { useAuth } from "../auth/AuthContext";
 
 export default function MyOrders() {
@@ -10,7 +10,6 @@ export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Load orders when logged in
   useEffect(() => {
     if (!user) {
       setLoading(false);
@@ -19,8 +18,8 @@ export default function MyOrders() {
 
     async function load() {
       try {
-        const data = await getMyOrders();   // ✅ getMyOrders() handles token automatically
-        setOrders(Array.isArray(data) ? data : []);
+        const res = await api.get("/orders/me");    // ✅ FIXED
+        setOrders(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("My orders error:", err);
         setOrders([]);
@@ -32,24 +31,21 @@ export default function MyOrders() {
     load();
   }, [user]);
 
-  // Cancel order handler
   async function handleCancel(id) {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
 
     try {
-      // Backend route: PATCH /api/orders/:id/cancel
-      await api.patch(`/orders/${id}/cancel`);    // ✅ correct cancel call
+      await api.patch(`/orders/${id}/cancel`);      // 🔥 correct backend route
 
-      // Refresh list
-      const updated = await getMyOrders();
-      setOrders(updated);
+      // Reload orders
+      const res = await api.get("/orders/me");      // 🔥 FIXED
+      setOrders(res.data);
     } catch (err) {
       console.error(err);
       alert("Failed to cancel order.");
     }
   }
 
-  // Filter out cancelled orders
   const visibleOrders = orders.filter((o) => o.status !== "cancelled");
 
   if (!user) return <p>Please log in to view your orders.</p>;

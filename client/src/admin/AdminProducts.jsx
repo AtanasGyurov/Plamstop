@@ -1,7 +1,7 @@
 // client/src/admin/AdminProducts.jsx
 
 import { useEffect, useState } from "react";
-import api, { getProducts } from "../api";   // ✅ FIXED IMPORT
+import api from "../api";            // ✅ use only api instance
 import { Link } from "react-router-dom";
 
 export default function AdminProducts() {
@@ -12,8 +12,8 @@ export default function AdminProducts() {
   useEffect(() => {
     async function load() {
       try {
-        const data = await getProducts();   // ✅ FIXED
-        setProducts(data);
+        const res = await api.get("/products");   // ✅ FIXED
+        setProducts(res.data || []);
       } catch (err) {
         console.error(err);
         setError("Failed to load products");
@@ -28,7 +28,7 @@ export default function AdminProducts() {
     if (!window.confirm("Delete product?")) return;
 
     try {
-      await api.delete(`/products/${id}`);   // ✅ WORKS
+      await api.delete(`/products/${id}`);        // ✅ WORKS
       setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error(err);

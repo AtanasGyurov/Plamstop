@@ -1,7 +1,5 @@
-// client/src/pages/Shop.jsx
-
 import { useEffect, useState } from "react";
-import { getProducts, placeOrder } from "../api";  // ✅ FIXED IMPORTS
+import api from "../api";              // ← FIXED
 import ProductList from "../components/ProductList";
 import Cart from "../components/Cart";
 
@@ -19,10 +17,19 @@ function Shop() {
   const [orderMsg, setOrderMsg] = useState("");
 
   useEffect(() => {
-    getProducts()
-      .then((data) => setProducts(data))
-      .catch(() => setError("Failed to load products"))
-      .finally(() => setLoading(false));
+    async function load() {
+      try {
+        const res = await api.get("/products");
+        setProducts(res.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
   }, []);
 
   // CART LOGIC
@@ -92,9 +99,9 @@ function Shop() {
     };
 
     try {
-      const created = await placeOrder(payload); // ✅ FIXED
-      if (created?.id) {
-        setOrderMsg("Order created: " + created.id);
+      const res = await api.post("/orders", payload);
+      if (res.data?.id) {
+        setOrderMsg("Order created: " + res.data.id);
         clearCart();
         setCustomerName("");
         setCustomerEmail("");

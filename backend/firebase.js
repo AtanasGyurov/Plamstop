@@ -1,19 +1,23 @@
-import fs from "fs";
-import { initializeApp, cert } from "firebase-admin/app";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
-import { getAuth } from "firebase-admin/auth";
+// backend/firebase.js
+import admin from "firebase-admin";
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const serviceAccountPath = path.join(__dirname, "serviceAccountKey.json");
 
 const serviceAccount = JSON.parse(
-  fs.readFileSync("./serviceAccountKey.json", "utf8")
+  readFileSync(serviceAccountPath, "utf-8")
 );
 
-const firebaseApp = initializeApp({
-  credential: cert(serviceAccount),
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
 });
 
-// FIXED: Use default Firestore DB (no name override)
-const db = getFirestore(firebaseApp);
-
-const auth = getAuth(firebaseApp);
-
-export { db, FieldValue, auth };
+export const db = admin.firestore();
+export const auth = admin.auth();
+export const FieldValue = admin.firestore.FieldValue;
+console.log("🔥 Connected to Firestore project:", serviceAccount.project_id);
