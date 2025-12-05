@@ -1,67 +1,65 @@
+// backend/routes/auth.js
 import express from "express";
-import { db, FieldValue } from "../firebase.js";
+import { db } from "../firebase.js";
 import { checkAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
-/**
- * POST /api/auth/sync
- */
+// --------------------
+// SYNC USER ON LOGIN
+// --------------------
 router.post("/sync", checkAuth, async (req, res) => {
   try {
-    const { uid, email, name } = req.user;
-
+    const uid = req.user.uid;
     const ref = db.collection("users").doc(uid);
-    const doc = await ref.get();
+    const snap = await ref.get();
 
-    if (!doc.exists) {
-      // Create user ONLY ONCE
+    // If user does not exist → create it (default role = client)
+    if (!snap.exists) {
       await ref.set({
-        uid,
-        email: email || "",
-        name: name || "",
-        role: "client", // default
-        createdAt: FieldValue.serverTimestamp(),
+        email: req.user.email,
+        name: req.user.name || "",
+        role: "client", // do NOT overwrite existing users
+        createdAt: new Date()
       });
-    } else {
-      // Update email and name — DO NOT UPDATE ROLE
-      await ref.update({
-        email: email || doc.data().email,
-        name: name || doc.data().name,
-        updatedAt: FieldValue.serverTimestamp(),
+
+      return res.json({
+        email: req.user.email,
+        name: "",
+        role: "client"
       });
     }
 
-    res.json({ ok: true });
+    // If user exists → return their Firestore data
+    const data = snap.data();
+
+    return res.json({
+      email: data.email,
+      name: data.name || "",
+      role: data.role || "client"
+    });
+
   } catch (err) {
-    console.error("Error syncing user profile:", err);
-    res.status(500).json({ error: "Failed to sync user" });
+    console.error("Sync error:", err);
+    return res.status(500).json({ error: "Failed to sync user" });
   }
 });
 
-/**
- * GET /api/auth/me
- */
+// --------------------
+// GET USER PROFILE
+// --------------------
 router.get("/me", checkAuth, async (req, res) => {
   try {
-    const { uid, email } = req.user;
+    const snap = await db.collection("users").doc(req.user.uid).get();
 
-    const ref = db.collection("users").doc(uid);
-    const doc = await ref.get();
+    if (!snap.exists)
+      return res.status(404).json({ error: "User not found" });
 
-    let role = "client";
-    let name = "";
+    return res.json(snap.data());
 
-    if (doc.exists) {
-      const data = doc.data();
-      role = data.role || "client";
-      name = data.name || "";
-    }
-
-    res.json({ uid, email, name, role });
   } catch (err) {
-    console.error("Error getting current user:", err);
-    res.status(500).json({ error: "Failed to get current user" });
+    console.error("ME error:", err);
+    return res.status(500).json({ error: "Failed to get user" });
   }
 });
 

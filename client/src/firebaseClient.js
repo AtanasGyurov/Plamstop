@@ -1,17 +1,18 @@
+// client/src/firebaseClient.js
+
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
-// КОПИРАЙ firebaseConfig ОТ FIREBASE КОНЗОЛАТА
 const firebaseConfig = {
-  apiKey: "AIzaSyCspxZwmSoQI6Gsx0qFEAYUgNoE60xxHXQ",
-  authDomain: "plamstop-fire-safety.firebaseapp.com",
-  projectId: "plamstop-fire-safety",
-  storageBucket: "plamstop-fire-safety.firebasestorage.app",
-  messagingSenderId: "700835325432",
-  appId: "1:700835325432:web:23f0216944e3ca5860e20d",
-  measurementId: "G-JYCZPFNVM7"
+  apiKey: "AIzaSyBKgCkv9mKAiKNlGyY1ECHzsnf-q7MZAGU",
+  authDomain: "plamstop-firesafety.firebaseapp.com",
+  projectId: "plamstop-firesafety",
+  storageBucket: "plamstop-firesafety.firebasestorage.app",
+  messagingSenderId: "290805663290",
+  appId: "1:290805663290:web:8a71e7e25f95c3c43c9703"
 };
 
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+export default app;

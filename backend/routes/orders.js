@@ -1,3 +1,4 @@
+// backend/routes/orders.js
 import express from "express";
 import { db } from "../firebase.js";
 import { mapDoc } from "../utils/mapDoc.js";
@@ -5,14 +6,12 @@ import { checkAuth, checkRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-/** USER — GET OWN ORDERS */
+/** USER — GET own orders */
 router.get("/", checkAuth, async (req, res) => {
   try {
-    const email = req.user.email;
-
     const snap = await db
       .collection("orders")
-      .where("customerEmail", "==", email)
+      .where("customerEmail", "==", req.user.email)
       .orderBy("createdAt", "desc")
       .get();
 
@@ -23,52 +22,46 @@ router.get("/", checkAuth, async (req, res) => {
   }
 });
 
-/** PUBLIC — CREATE ORDER */
+/** PUBLIC — CREATE order */
 router.post("/", async (req, res) => {
   try {
-    const data = req.body;
-
     const order = {
-      ...data,
+      ...req.body,
       status: "pending",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     const ref = await db.collection("orders").add(order);
-    const saved = await ref.get();
-
-    res.status(201).json(mapDoc(saved));
+    res.status(201).json(mapDoc(await ref.get()));
   } catch (err) {
     console.error("Create order error:", err);
     res.status(500).json({ error: "Failed to create order" });
   }
 });
 
-/** USER — CANCEL ORDER */
+/** USER — CANCEL order */
 router.patch("/:id/cancel", checkAuth, async (req, res) => {
   try {
-    const id = req.params.id;
-    const ref = db.collection("orders").doc(id);
-    const doc = await ref.get();
+    const ref = db.collection("orders").doc(req.params.id);
+    const snap = await ref.get();
 
-    if (!doc.exists) return res.status(404).json({ error: "Order not found" });
+    if (!snap.exists) return res.status(404).json({ error: "Order not found" });
 
-    const order = doc.data();
+    const order = snap.data();
 
     if (order.customerEmail !== req.user.email)
       return res.status(403).json({ error: "Not your order" });
 
     if (!["pending", "confirmed"].includes(order.status))
-      return res.status(400).json({ error: "Cannot cancel" });
+      return res.status(400).json({ error: "Cannot cancel this order" });
 
     await ref.update({
       status: "cancelled",
       updatedAt: new Date(),
     });
 
-    const updated = await ref.get();
-    res.json(mapDoc(updated));
+    res.json(mapDoc(await ref.get()));
   } catch (err) {
     console.error("Cancel error:", err);
     res.status(500).json({ error: "Failed to cancel order" });
@@ -78,11 +71,7 @@ router.patch("/:id/cancel", checkAuth, async (req, res) => {
 /** ADMIN — ALL ORDERS */
 router.get("/admin/orders", checkAuth, checkRole("admin"), async (req, res) => {
   try {
-    const snap = await db
-      .collection("orders")
-      .orderBy("createdAt", "desc")
-      .get();
-
+    const snap = await db.collection("orders").orderBy("createdAt", "desc").get();
     res.json(snap.docs.map(mapDoc));
   } catch (err) {
     console.error("Admin orders error:", err);

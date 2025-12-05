@@ -6,88 +6,67 @@ import { checkAuth, checkRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-/**
- * GET /api/products
- * Public – returns all products
- */
+/** GET all products */
 router.get("/", async (req, res) => {
   try {
     const snapshot = await db.collection("products").get();
-    const products = snapshot.docs.map(mapDoc);
-    return res.json(products);
+    res.json(snapshot.docs.map(mapDoc));
   } catch (err) {
     console.error("Error loading products:", err);
-    return res.status(500).json({ error: "Failed to load products" });
+    res.status(500).json({ error: "Failed to load products" });
   }
 });
 
-/**
- * POST /api/products
- * Admin only – create product
- */
+/** Admin: Create product */
 router.post("/", checkAuth, checkRole("admin"), async (req, res) => {
   try {
     const data = req.body;
 
-    const docRef = await db.collection("products").add({
+    const ref = await db.collection("products").add({
       name: data.name,
       price: Number(data.price),
       category: data.category || "",
-      stock: Number(data.stock || 0),
+      stock: Number(data.stock ?? 0),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    const doc = await docRef.get();
-    return res.status(201).json(mapDoc(doc));
+    const saved = await ref.get();
+    res.status(201).json(mapDoc(saved));
   } catch (err) {
-    console.error("Error creating product:", err);
-    return res.status(500).json({ error: "Failed to create product" });
+    console.error("Create product error:", err);
+    res.status(500).json({ error: "Failed to create product" });
   }
 });
 
-/**
- * PATCH /api/products/:id
- * Admin only – update product
- */
+/** Admin: Update product */
 router.patch("/:id", checkAuth, checkRole("admin"), async (req, res) => {
   try {
-    const id = req.params.id;
-    const data = req.body;
+    const ref = db.collection("products").doc(req.params.id);
 
-    const docRef = db.collection("products").doc(id);
-    const docSnap = await docRef.get();
-
-    if (!docSnap.exists) {
+    if (!(await ref.get()).exists)
       return res.status(404).json({ error: "Product not found" });
-    }
 
-    await docRef.update({
-      ...data,
+    await ref.update({
+      ...req.body,
       updatedAt: new Date(),
     });
 
-    const updatedDoc = await docRef.get();
-    return res.json(mapDoc(updatedDoc));
+    res.json(mapDoc(await ref.get()));
   } catch (err) {
-    console.error("Error updating product:", err);
-    return res.status(500).json({ error: "Failed to update product" });
+    console.error("Update error:", err);
+    res.status(500).json({ error: "Failed to update product" });
   }
 });
 
-/**
- * DELETE /api/products/:id
- * Admin only – delete product
- */
+/** Admin: Delete */
 router.delete("/:id", checkAuth, checkRole("admin"), async (req, res) => {
   try {
-    const id = req.params.id;
-
-    await db.collection("products").doc(id).delete();
-    return res.json({ success: true });
+    await db.collection("products").doc(req.params.id).delete();
+    res.json({ success: true });
   } catch (err) {
-    console.error("Error deleting product:", err);
-    return res.status(500).json({ error: "Failed to delete product" });
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Failed to delete product" });
   }
 });
 
