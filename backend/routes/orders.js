@@ -12,7 +12,7 @@ router.get("/", checkAuth, async (req, res) => {
     const snap = await db
       .collection("orders")
       .where("customerEmail", "==", req.user.email)
-      .orderBy("createdAt", "desc")
+      // ⛔ removed orderBy to avoid composite-index problems
       .get();
 
     res.json(snap.docs.map(mapDoc));
@@ -71,7 +71,11 @@ router.patch("/:id/cancel", checkAuth, async (req, res) => {
 /** ADMIN — ALL ORDERS */
 router.get("/admin/orders", checkAuth, checkRole("admin"), async (req, res) => {
   try {
-    const snap = await db.collection("orders").orderBy("createdAt", "desc").get();
+    const snap = await db
+      .collection("orders")
+      .orderBy("createdAt", "desc") // this is fine for admins
+      .get();
+
     res.json(snap.docs.map(mapDoc));
   } catch (err) {
     console.error("Admin orders error:", err);

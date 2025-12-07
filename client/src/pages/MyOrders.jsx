@@ -1,78 +1,48 @@
-// client/src/pages/MyOrders.jsx
-
 import { useEffect, useState } from "react";
-import api from "../api";                // ✅ Only use api instance
-import { useAuth } from "../auth/AuthContext";
+import api from "../api";   // ✅ use axios instance with auto token
 
 export default function MyOrders() {
-  const { user } = useAuth();
-
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    async function load() {
+    async function loadOrders() {
       try {
-        const res = await api.get("/orders/me");    // ✅ FIXED
+        const res = await api.get("/orders");   // ✅ correct endpoint
         setOrders(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("My orders error:", err);
-        setOrders([]);
+        setError("Failed to load your orders.");
       } finally {
         setLoading(false);
       }
     }
 
-    load();
-  }, [user]);
+    loadOrders();
+  }, []);
 
-  async function handleCancel(id) {
-    if (!window.confirm("Are you sure you want to cancel this order?")) return;
-
-    try {
-      await api.patch(`/orders/${id}/cancel`);      // 🔥 correct backend route
-
-      // Reload orders
-      const res = await api.get("/orders/me");      // 🔥 FIXED
-      setOrders(res.data);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to cancel order.");
-    }
-  }
-
-  const visibleOrders = orders.filter((o) => o.status !== "cancelled");
-
-  if (!user) return <p>Please log in to view your orders.</p>;
   if (loading) return <p>Loading your orders...</p>;
-  if (visibleOrders.length === 0) return <p>You haven’t placed any orders yet.</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (orders.length === 0) return <p>You haven’t placed any orders yet.</p>;
 
   return (
-    <div style={{ padding: "1.5rem" }}>
+    <div>
       <h1>My Orders</h1>
 
-      {visibleOrders.map((o) => (
+      {orders.map((o) => (
         <div
           key={o.id}
           style={{
-            border: "1px solid #666",
-            padding: "15px",
-            borderRadius: "6px",
+            border: "1px solid #555",
+            padding: "10px",
             marginBottom: "15px",
-            background: "#222",
+            color: "white",
           }}
         >
-          <strong>Order ID:</strong> {o.id}<br />
-          <strong>Total:</strong> {o.totalAmount} лв<br />
+          <strong>ID:</strong> {o.id}<br />
           <strong>Status:</strong> {o.status}<br />
-          <strong>Date:</strong>{" "}
-          {o.createdAt ? new Date(o.createdAt).toLocaleString() : "N/A"}
-          <br />
+          <strong>Total:</strong> {o.totalAmount} лв<br />
 
           <strong>Items:</strong>
           <ul>
@@ -82,23 +52,6 @@ export default function MyOrders() {
               </li>
             ))}
           </ul>
-
-          {(o.status === "pending" || o.status === "confirmed") && (
-            <button
-              onClick={() => handleCancel(o.id)}
-              style={{
-                marginTop: "10px",
-                backgroundColor: "#c62828",
-                color: "white",
-                border: "none",
-                padding: "8px 14px",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Cancel Order
-            </button>
-          )}
         </div>
       ))}
     </div>
