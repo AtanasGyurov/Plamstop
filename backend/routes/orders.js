@@ -6,13 +6,14 @@ import { checkAuth, checkRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-/** USER — GET own orders */
+/** ------------------------------------------------------
+ * USER — GET OWN ORDERS
+ * ------------------------------------------------------ */
 router.get("/", checkAuth, async (req, res) => {
   try {
     const snap = await db
       .collection("orders")
       .where("customerEmail", "==", req.user.email)
-      // ⛔ removed orderBy to avoid composite-index problems
       .get();
 
     res.json(snap.docs.map(mapDoc));
@@ -22,7 +23,9 @@ router.get("/", checkAuth, async (req, res) => {
   }
 });
 
-/** PUBLIC — CREATE order */
+/** ------------------------------------------------------
+ * PUBLIC — CREATE ORDER
+ * ------------------------------------------------------ */
 router.post("/", async (req, res) => {
   try {
     const order = {
@@ -40,7 +43,9 @@ router.post("/", async (req, res) => {
   }
 });
 
-/** USER — CANCEL order */
+/** ------------------------------------------------------
+ * USER — CANCEL OWN ORDER
+ * ------------------------------------------------------ */
 router.patch("/:id/cancel", checkAuth, async (req, res) => {
   try {
     const ref = db.collection("orders").doc(req.params.id);
@@ -68,18 +73,68 @@ router.patch("/:id/cancel", checkAuth, async (req, res) => {
   }
 });
 
-/** ADMIN — ALL ORDERS */
+/** ------------------------------------------------------
+ * ADMIN — GET ALL ORDERS
+ * ------------------------------------------------------ */
 router.get("/admin/orders", checkAuth, checkRole("admin"), async (req, res) => {
   try {
     const snap = await db
       .collection("orders")
-      .orderBy("createdAt", "desc") // this is fine for admins
+      .orderBy("createdAt", "desc")
       .get();
 
     res.json(snap.docs.map(mapDoc));
   } catch (err) {
     console.error("Admin orders error:", err);
     res.status(500).json({ error: "Failed to fetch all orders" });
+  }
+});
+
+/** ------------------------------------------------------
+ * ADMIN — UPDATE ORDER STATUS
+ * ------------------------------------------------------ */
+router.patch("/:id/status", checkAuth, checkRole("admin"), async (req, res) => {
+  try {
+    const newStatus = req.body.status;
+    const valid = ["pending", "confirmed", "shipped", "completed", "cancelled"];
+
+    if (!valid.includes(newStatus)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    const ref = db.collection("orders").doc(req.params.id);
+    const snap = await ref.get();
+
+    if (!snap.exists) return res.status(404).json({ error: "Order not found" });
+
+    await ref.update({
+      status: newStatus,
+      updatedAt: new Date(),
+    });
+
+    res.json(mapDoc(await ref.get()));
+  } catch (err) {
+    console.error("Status update error:", err);
+    res.status(500).json({ error: "Failed to update order status" });
+  }
+});
+
+/** ------------------------------------------------------
+ * ADMIN — DELETE ORDER
+ * ------------------------------------------------------ */
+router.delete("/admin/orders/:id", checkAuth, checkRole("admin"), async (req, res) => {
+  try {
+    const ref = db.collection("orders").doc(req.params.id);
+    const snap = await ref.get();
+
+    if (!snap.exists)
+      return res.status(404).json({ error: "Order not found" });
+
+    await ref.delete();
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Delete order error:", err);
+    res.status(500).json({ error: "Failed to delete order" });
   }
 });
 

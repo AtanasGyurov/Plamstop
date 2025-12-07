@@ -4,24 +4,19 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all"); // ⭐ NEW
+  const [filter, setFilter] = useState("all");
 
   function applyFilter(list, f) {
     if (f === "all") return list;
     return list.filter((o) => o.status === f);
   }
 
-  // ============================
-  // LOAD ORDERS FROM BACKEND
-  // ============================
   async function loadOrders() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const url = "http://localhost:5000/api/orders/admin/orders";
-
     try {
-      const res = await fetch(url, {
+      const res = await fetch("http://localhost:5000/api/orders/admin/orders", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -41,7 +36,6 @@ export default function AdminOrders() {
     loadOrders();
   }, []);
 
-  // Whenever filter changes → update displayed list
   useEffect(() => {
     setFilteredOrders(applyFilter(orders, filter));
   }, [filter, orders]);
@@ -51,9 +45,8 @@ export default function AdminOrders() {
   // ============================
   async function updateStatus(id, newStatus) {
     const token = localStorage.getItem("token");
-    if (!token) return;
 
-    if (!window.confirm(`Change order status to "${newStatus}"?`)) return;
+    if (!window.confirm(`Change status to "${newStatus}"?`)) return;
 
     try {
       const res = await fetch(`http://localhost:5000/api/orders/${id}/status`, {
@@ -67,36 +60,62 @@ export default function AdminOrders() {
 
       if (!res.ok) throw new Error("Status update failed");
 
-      await loadOrders(); // refresh list
+      loadOrders();
     } catch (err) {
-      console.error("Update failed:", err);
+      console.error("Update error:", err);
       alert("Failed to update status");
     }
   }
 
-  if (loading) return <p>Loading...</p>;
+  // ============================
+  // DELETE ORDER
+  // ============================
+  async function deleteOrder(id) {
+    const token = localStorage.getItem("token");
+
+    if (!window.confirm("Delete this order permanently?")) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/orders/admin/orders/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!res.ok) throw new Error("Delete failed");
+
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Failed to delete order");
+    }
+  }
+
+  if (loading) return <p style={{ color: "white" }}>Loading...</p>;
 
   return (
     <div>
       <h1>Orders</h1>
 
-      {/* ============================
-          FILTER BUTTONS
-          ============================ */}
+      {/* FILTER BUTTONS */}
       <div style={{ marginBottom: 20 }}>
-        <button onClick={() => setFilter("all")}>All</button>
-        <button onClick={() => setFilter("pending")}>Pending</button>
-        <button onClick={() => setFilter("confirmed")}>Confirmed</button>
-        <button onClick={() => setFilter("shipped")}>Shipped</button>
-        <button onClick={() => setFilter("completed")}>Completed</button>
-        <button onClick={() => setFilter("cancelled")}>Cancelled</button>
+        {["all", "pending", "confirmed", "shipped", "completed", "cancelled"].map(
+          (s) => (
+            <button
+              key={s}
+              onClick={() => setFilter(s)}
+              style={{ marginRight: 10 }}
+            >
+              {s.toUpperCase()}
+            </button>
+          )
+        )}
       </div>
 
       {filteredOrders.length === 0 && <p>No orders found.</p>}
 
-      {/* ============================
-          ORDERS LIST
-          ============================ */}
       {filteredOrders.map((o) => (
         <div
           key={o.id}
@@ -122,9 +141,7 @@ export default function AdminOrders() {
             ))}
           </ul>
 
-          {/* ============================
-              ADMIN ACTION BUTTONS
-              ============================ */}
+          {/* ACTION BUTTONS */}
           <div style={{ marginTop: 10 }}>
             {o.status === "pending" && (
               <button onClick={() => updateStatus(o.id, "confirmed")}>
@@ -152,6 +169,14 @@ export default function AdminOrders() {
                 Cancel
               </button>
             )}
+
+            {/* DELETE */}
+            <button
+              onClick={() => deleteOrder(o.id)}
+              style={{ marginLeft: 10, background: "darkred", color: "white" }}
+            >
+              Delete
+            </button>
           </div>
         </div>
       ))}
