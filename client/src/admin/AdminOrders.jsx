@@ -6,6 +6,25 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
+  const statusLabel = (s) => {
+    switch (s) {
+      case "all":
+        return "Всички";
+      case "pending":
+        return "В изчакване";
+      case "confirmed":
+        return "Потвърдени";
+      case "shipped":
+        return "Изпратени";
+      case "completed":
+        return "Завършени";
+      case "cancelled":
+        return "Отказани";
+      default:
+        return s;
+    }
+  };
+
   function applyFilter(list, f) {
     if (f === "all") return list;
     return list.filter((o) => o.status === f);
@@ -40,13 +59,13 @@ export default function AdminOrders() {
     setFilteredOrders(applyFilter(orders, filter));
   }, [filter, orders]);
 
-  // ============================
   // UPDATE ORDER STATUS
-  // ============================
   async function updateStatus(id, newStatus) {
     const token = localStorage.getItem("token");
+    if (!token) return;
 
-    if (!window.confirm(`Change status to "${newStatus}"?`)) return;
+    const label = statusLabel(newStatus);
+    if (!window.confirm(`Да променим ли статуса на „${label}“?`)) return;
 
     try {
       const res = await fetch(`http://localhost:5000/api/orders/${id}/status`, {
@@ -63,17 +82,16 @@ export default function AdminOrders() {
       loadOrders();
     } catch (err) {
       console.error("Update error:", err);
-      alert("Failed to update status");
+      alert("Неуспешна промяна на статуса.");
     }
   }
 
-  // ============================
   // DELETE ORDER
-  // ============================
   async function deleteOrder(id) {
     const token = localStorage.getItem("token");
+    if (!token) return;
 
-    if (!window.confirm("Delete this order permanently?")) return;
+    if (!window.confirm("Да изтрием ли поръчката завинаги?")) return;
 
     try {
       const res = await fetch(
@@ -89,17 +107,17 @@ export default function AdminOrders() {
       setOrders((prev) => prev.filter((o) => o.id !== id));
     } catch (err) {
       console.error("Delete error:", err);
-      alert("Failed to delete order");
+      alert("Неуспешно изтриване на поръчката.");
     }
   }
 
-  if (loading) return <p style={{ color: "white" }}>Loading...</p>;
+  if (loading) return <p style={{ color: "white" }}>Зареждане...</p>;
 
   return (
     <div>
-      <h1>Orders</h1>
+      <h1>Поръчки</h1>
 
-      {/* FILTER BUTTONS */}
+      {/* ФИЛТРИ */}
       <div style={{ marginBottom: 20 }}>
         {["all", "pending", "confirmed", "shipped", "completed", "cancelled"].map(
           (s) => (
@@ -108,13 +126,13 @@ export default function AdminOrders() {
               onClick={() => setFilter(s)}
               style={{ marginRight: 10 }}
             >
-              {s.toUpperCase()}
+              {statusLabel(s)}
             </button>
           )
         )}
       </div>
 
-      {filteredOrders.length === 0 && <p>No orders found.</p>}
+      {filteredOrders.length === 0 && <p>Няма намерени поръчки.</p>}
 
       {filteredOrders.map((o) => (
         <div
@@ -127,12 +145,12 @@ export default function AdminOrders() {
           }}
         >
           <strong>ID:</strong> {o.id} <br />
-          <strong>Name:</strong> {o.customerName} <br />
-          <strong>Email:</strong> {o.customerEmail} <br />
-          <strong>Total:</strong> {o.totalAmount} лв <br />
-          <strong>Status:</strong> {o.status.toUpperCase()} <br />
+          <strong>Име:</strong> {o.customerName} <br />
+          <strong>Имейл:</strong> {o.customerEmail} <br />
+          <strong>Общо:</strong> {o.totalAmount} лв <br />
+          <strong>Статус:</strong> {statusLabel(o.status)} <br />
 
-          <strong>Items:</strong>
+          <strong>Артикули:</strong>
           <ul>
             {o.items?.map((i) => (
               <li key={i.id}>
@@ -141,23 +159,23 @@ export default function AdminOrders() {
             ))}
           </ul>
 
-          {/* ACTION BUTTONS */}
+          {/* ДЕЙСТВИЯ */}
           <div style={{ marginTop: 10 }}>
             {o.status === "pending" && (
               <button onClick={() => updateStatus(o.id, "confirmed")}>
-                Confirm
+                Потвърди
               </button>
             )}
 
             {o.status === "confirmed" && (
               <button onClick={() => updateStatus(o.id, "shipped")}>
-                Ship
+                Изпрати
               </button>
             )}
 
             {o.status === "shipped" && (
               <button onClick={() => updateStatus(o.id, "completed")}>
-                Complete
+                Завърши
               </button>
             )}
 
@@ -166,16 +184,15 @@ export default function AdminOrders() {
                 onClick={() => updateStatus(o.id, "cancelled")}
                 style={{ color: "red", marginLeft: 10 }}
               >
-                Cancel
+                Откажи
               </button>
             )}
 
-            {/* DELETE */}
             <button
               onClick={() => deleteOrder(o.id)}
               style={{ marginLeft: 10, background: "darkred", color: "white" }}
             >
-              Delete
+              Изтрий
             </button>
           </div>
         </div>
