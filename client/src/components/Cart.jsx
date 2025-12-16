@@ -1,16 +1,13 @@
 import React from "react";
 
 function Cart({ items, onChangeQty, onRemove, onClear }) {
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div style={{ marginTop: "1.5rem" }}>
-      <h2>Cart</h2>
+      <h2>Количка</h2>
       {items.length === 0 ? (
-        <p>Cart is empty.</p>
+        <p>Количката е празна.</p>
       ) : (
         <>
           <ul>
@@ -33,17 +30,17 @@ function Cart({ items, onChangeQty, onRemove, onClear }) {
                   style={{ marginLeft: "0.5rem" }}
                   onClick={() => onRemove(item.id)}
                 >
-                  Remove
+                  Премахни
                 </button>
               </li>
             ))}
           </ul>
 
           <p>
-            <strong>Total:</strong> {total} лв.
+            <strong>Общо:</strong> {total} лв.
           </p>
 
-          <button onClick={onClear}>Clear cart</button>
+          <button onClick={onClear}>Изчисти количката</button>
         </>
       )}
     </div>

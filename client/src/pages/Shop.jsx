@@ -1,20 +1,28 @@
 import { useEffect, useState } from "react";
-import api from "../api";              // ← FIXED
+import api from "../api";
 import ProductList from "../components/ProductList";
 import Cart from "../components/Cart";
+import { useAuth } from "../auth/AuthContext";
 
 function Shop() {
+  const { user } = useAuth();
+
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Checkout fields
+  // Полета за поръчка
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
   const [note, setNote] = useState("");
   const [orderMsg, setOrderMsg] = useState("");
+
+  // ако е логнат — заключи имейла към акаунта
+  useEffect(() => {
+    if (user?.email) setCustomerEmail(user.email);
+  }, [user]);
 
   useEffect(() => {
     async function load() {
@@ -23,24 +31,20 @@ function Shop() {
         setProducts(res.data);
       } catch (err) {
         console.error(err);
-        setError("Failed to load products");
+        setError("Неуспешно зареждане на продуктите.");
       } finally {
         setLoading(false);
       }
     }
-
     load();
   }, []);
 
-  // CART LOGIC
   function addToCart(product) {
     setCart((prev) => {
       const existing = prev.find((p) => p.id === product.id);
       if (existing) {
         return prev.map((p) =>
-          p.id === product.id
-            ? { ...p, quantity: p.quantity + 1 }
-            : p
+          p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
         );
       }
       return [...prev, { ...product, quantity: 1 }];
@@ -49,9 +53,7 @@ function Shop() {
 
   function updateQty(id, qty) {
     setCart((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: qty } : item
-      )
+      prev.map((item) => (item.id === id ? { ...item, quantity: qty } : item))
     );
   }
 
@@ -63,25 +65,26 @@ function Shop() {
     setCart([]);
   }
 
-  // ORDER SUBMIT
   async function handleOrderSubmit(e) {
     e.preventDefault();
     setError("");
     setOrderMsg("");
 
     if (cart.length === 0) {
-      setError("Cart is empty.");
+      setError("Количката е празна.");
       return;
     }
 
-    if (!customerName || !customerEmail) {
-      setError("Name and email are required.");
-      return;
-    }
+    const finalEmail = user?.email || customerEmail;
+
+    if (!customerName) {
+  setError("Името е задължително.");
+  return;
+}
 
     const payload = {
       customerName,
-      customerEmail,
+
       customerAddress,
       note,
       items: cart.map((item) => ({
@@ -91,37 +94,33 @@ function Shop() {
         quantity: item.quantity,
         total: item.price * item.quantity,
       })),
-      totalAmount: cart.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      ),
-      createdAt: new Date().toISOString(),
+      totalAmount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     };
 
     try {
       const res = await api.post("/orders", payload);
       if (res.data?.id) {
-        setOrderMsg("Order created: " + res.data.id);
+        setOrderMsg("Поръчката е създадена успешно. № " + res.data.id);
         clearCart();
         setCustomerName("");
-        setCustomerEmail("");
+        if (!user?.email) setCustomerEmail("");
         setCustomerAddress("");
         setNote("");
       } else {
-        setError("Order failed.");
+        setError("Поръчката не беше създадена.");
       }
     } catch (err) {
       console.error(err);
-      setError("Failed to create order.");
+      setError("Грешка при създаване на поръчка.");
     }
   }
 
   return (
     <div style={{ padding: "1.5rem" }}>
       <h1>Plamstop 🔥</h1>
-      <p>Fire-safety shop</p>
+      <p>Магазин за пожарна безопасност</p>
 
-      {loading && <p>Loading products…</p>}
+      {loading && <p>Зареждане на продукти…</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {orderMsg && <p style={{ color: "green" }}>{orderMsg}</p>}
 
@@ -134,22 +133,29 @@ function Shop() {
         onClear={clearCart}
       />
 
-      <h2>Checkout</h2>
+      <h2>Завършване на поръчка</h2>
       <form onSubmit={handleOrderSubmit}>
-        <label>Name:</label>
+        <label>Име:</label>
         <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
 
-        <label>Email:</label>
-        <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
+        <label>Имейл:</label>
+        <input
+          value={customerEmail}
+          onChange={(e) => setCustomerEmail(e.target.value)}
+          disabled={!!user?.email}
+        />
 
-        <label>Address:</label>
-        <input value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} />
+        <label>Адрес:</label>
+        <input
+          value={customerAddress}
+          onChange={(e) => setCustomerAddress(e.target.value)}
+        />
 
-        <label>Note:</label>
+        <label>Бележка:</label>
         <textarea value={note} onChange={(e) => setNote(e.target.value)} />
 
         <button type="submit" style={{ marginTop: "0.5rem" }}>
-          Place Order
+          Направи поръчка
         </button>
       </form>
     </div>

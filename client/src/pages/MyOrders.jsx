@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api";   // ✅ use axios instance with auto token
+import api from "../api";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -9,11 +9,11 @@ export default function MyOrders() {
   useEffect(() => {
     async function loadOrders() {
       try {
-        const res = await api.get("/orders");   // ✅ correct endpoint
+        const res = await api.get("/orders");
         setOrders(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
-        console.error("My orders error:", err);
-        setError("Failed to load your orders.");
+        console.error(err);
+        setError("Неуспешно зареждане на поръчките.");
       } finally {
         setLoading(false);
       }
@@ -22,36 +22,19 @@ export default function MyOrders() {
     loadOrders();
   }, []);
 
-  if (loading) return <p>Loading your orders...</p>;
+  if (loading) return <p>Зареждане на поръчките…</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (orders.length === 0) return <p>You haven’t placed any orders yet.</p>;
+  if (orders.length === 0) return <p>Все още нямате поръчки.</p>;
 
   return (
     <div>
-      <h1>My Orders</h1>
+      <h1>Моите поръчки</h1>
 
       {orders.map((o) => (
-        <div
-          key={o.id}
-          style={{
-            border: "1px solid #555",
-            padding: "10px",
-            marginBottom: "15px",
-            color: "white",
-          }}
-        >
-          <strong>ID:</strong> {o.id}<br />
-          <strong>Status:</strong> {o.status}<br />
-          <strong>Total:</strong> {o.totalAmount} лв<br />
-
-          <strong>Items:</strong>
-          <ul>
-            {o.items?.map((i) => (
-              <li key={i.id}>
-                {i.name} — {i.quantity} × {i.price} лв
-              </li>
-            ))}
-          </ul>
+        <div key={o.id} style={{ border: "1px solid #555", padding: 10 }}>
+          <strong>ID:</strong> {o.id} <br />
+          <strong>Статус:</strong> {o.status} <br />
+          <strong>Обща сума:</strong> {o.totalAmount} лв
         </div>
       ))}
     </div>

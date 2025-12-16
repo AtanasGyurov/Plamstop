@@ -1,7 +1,7 @@
 // client/src/auth/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../firebaseClient";
-import api from "../api"; 
+import api from "../api";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const AuthContext = createContext();
@@ -12,13 +12,13 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Sync user with backend (gets role, name, email)
+  // 🔥 Синхронизация на потребителя с бекенда (връща role, name, email)
   async function fetchUserProfile() {
     try {
       const res = await api.post("/auth/sync");
       return res.data; // { email, role, name }
     } catch (err) {
-      console.error("Failed to sync user:", err);
+      console.error("Неуспешна синхронизация на потребителя:", err);
       return null;
     }
   }
@@ -41,7 +41,7 @@ export function AuthProvider({ children }) {
       setToken(token);
       localStorage.setItem("token", token);
 
-      // 🔥 Fetch role & profile from backend
+      // 🔥 Взимаме роля и профил от бекенда
       const profile = await fetchUserProfile();
 
       setUser({

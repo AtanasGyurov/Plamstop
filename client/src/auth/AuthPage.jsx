@@ -4,9 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../firebaseClient";
 import {
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
 } from "firebase/auth";
-
 
 export default function AuthPage() {
   const nav = useNavigate();
@@ -30,11 +29,11 @@ export default function AuthPage() {
         await createUserWithEmailAndPassword(auth, email, password);
       }
 
-      // go back to shop
+      // връщане към магазина
       nav("/");
     } catch (err) {
       console.error(err);
-      setError(err.message || "Authentication failed.");
+      setError(err.message || "Неуспешна автентикация.");
     }
 
     setLoading(false);
@@ -51,12 +50,12 @@ export default function AuthPage() {
         fontFamily: "system-ui",
       }}
     >
-      <h1>{mode === "login" ? "Log In" : "Register"}</h1>
+      <h1>{mode === "login" ? "Вход" : "Регистрация"}</h1>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={handleSubmit}>
-        <label>Email</label>
+        <label>Имейл</label>
         <input
           type="email"
           style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
@@ -64,7 +63,7 @@ export default function AuthPage() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <label>Password</label>
+        <label>Парола</label>
         <input
           type="password"
           style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
@@ -78,10 +77,10 @@ export default function AuthPage() {
           disabled={loading}
         >
           {loading
-            ? "Processing..."
+            ? "Обработва се..."
             : mode === "login"
-            ? "Log In"
-            : "Create Account"}
+            ? "Вход"
+            : "Създай профил"}
         </button>
       </form>
 
@@ -94,7 +93,7 @@ export default function AuthPage() {
           background: "#eee",
         }}
       >
-        Switch to {mode === "login" ? "Register" : "Log In"}
+        {mode === "login" ? "Към регистрация" : "Към вход"}
       </button>
 
       <button
@@ -105,7 +104,7 @@ export default function AuthPage() {
           padding: "10px",
         }}
       >
-        Back to Shop
+        Назад към магазина
       </button>
     </div>
   );

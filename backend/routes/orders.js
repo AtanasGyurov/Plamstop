@@ -16,30 +16,66 @@ router.get("/", checkAuth, async (req, res) => {
       .where("customerEmail", "==", req.user.email)
       .get();
 
-    res.json(snap.docs.map(mapDoc));
+    const orders = snap.docs.map(mapDoc);
+
+    // Локално сортиране (без composite index)
+    orders.sort((a, b) => {
+      const aMs =
+        a?.createdAt?.toMillis?.() ??
+        (typeof a?.createdAt === "string" ? Date.parse(a.createdAt) : 0) ??
+        0;
+
+      const bMs =
+        b?.createdAt?.toMillis?.() ??
+        (typeof b?.createdAt === "string" ? Date.parse(b.createdAt) : 0) ??
+        0;
+
+      return bMs - aMs;
+    });
+
+    return res.json(orders);
   } catch (err) {
     console.error("User order error:", err);
-    res.status(500).json({ error: "Failed to fetch orders" });
+    return res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
 
 /** ------------------------------------------------------
- * PUBLIC — CREATE ORDER
+ * AUTH — CREATE ORDER (важно!)
  * ------------------------------------------------------ */
-router.post("/", async (req, res) => {
+router.post("/", checkAuth, async (req, res) => {
   try {
+    const data = req.body || {};
+
+    const items = Array.isArray(data.items) ? data.items : [];
+    const totalAmount =
+      typeof data.totalAmount === "number"
+        ? data.totalAmount
+        : items.reduce(
+            (sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 0),
+            0
+          );
+
+    // 🔥 ВАЖНО: customerEmail идва от токена, НЕ от клиента
     const order = {
-      ...req.body,
+      ...data,
+      customerEmail: req.user.email,
+      customerUid: req.user.uid,
+
       status: "pending",
+      totalAmount,
+
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     const ref = await db.collection("orders").add(order);
-    res.status(201).json(mapDoc(await ref.get()));
+    const saved = await ref.get();
+
+    return res.status(201).json(mapDoc(saved));
   } catch (err) {
     console.error("Create order error:", err);
-    res.status(500).json({ error: "Failed to create order" });
+    return res.status(500).json({ error: "Failed to create order" });
   }
 });
 
@@ -66,10 +102,10 @@ router.patch("/:id/cancel", checkAuth, async (req, res) => {
       updatedAt: new Date(),
     });
 
-    res.json(mapDoc(await ref.get()));
+    return res.json(mapDoc(await ref.get()));
   } catch (err) {
     console.error("Cancel error:", err);
-    res.status(500).json({ error: "Failed to cancel order" });
+    return res.status(500).json({ error: "Failed to cancel order" });
   }
 });
 
@@ -78,15 +114,11 @@ router.patch("/:id/cancel", checkAuth, async (req, res) => {
  * ------------------------------------------------------ */
 router.get("/admin/orders", checkAuth, checkRole("admin"), async (req, res) => {
   try {
-    const snap = await db
-      .collection("orders")
-      .orderBy("createdAt", "desc")
-      .get();
-
-    res.json(snap.docs.map(mapDoc));
+    const snap = await db.collection("orders").orderBy("createdAt", "desc").get();
+    return res.json(snap.docs.map(mapDoc));
   } catch (err) {
     console.error("Admin orders error:", err);
-    res.status(500).json({ error: "Failed to fetch all orders" });
+    return res.status(500).json({ error: "Failed to fetch all orders" });
   }
 });
 
@@ -95,7 +127,7 @@ router.get("/admin/orders", checkAuth, checkRole("admin"), async (req, res) => {
  * ------------------------------------------------------ */
 router.patch("/:id/status", checkAuth, checkRole("admin"), async (req, res) => {
   try {
-    const newStatus = req.body.status;
+    const newStatus = req.body?.status;
     const valid = ["pending", "confirmed", "shipped", "completed", "cancelled"];
 
     if (!valid.includes(newStatus)) {
@@ -112,10 +144,10 @@ router.patch("/:id/status", checkAuth, checkRole("admin"), async (req, res) => {
       updatedAt: new Date(),
     });
 
-    res.json(mapDoc(await ref.get()));
+    return res.json(mapDoc(await ref.get()));
   } catch (err) {
     console.error("Status update error:", err);
-    res.status(500).json({ error: "Failed to update order status" });
+    return res.status(500).json({ error: "Failed to update order status" });
   }
 });
 
@@ -127,14 +159,13 @@ router.delete("/admin/orders/:id", checkAuth, checkRole("admin"), async (req, re
     const ref = db.collection("orders").doc(req.params.id);
     const snap = await ref.get();
 
-    if (!snap.exists)
-      return res.status(404).json({ error: "Order not found" });
+    if (!snap.exists) return res.status(404).json({ error: "Order not found" });
 
     await ref.delete();
-    res.json({ success: true });
+    return res.json({ success: true });
   } catch (err) {
     console.error("Delete order error:", err);
-    res.status(500).json({ error: "Failed to delete order" });
+    return res.status(500).json({ error: "Failed to delete order" });
   }
 });
 
