@@ -1,5 +1,7 @@
+// client/src/App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
+import { CartProvider } from "./cart/CartContext";
 
 import Layout from "./layout/Layout";
 
@@ -19,33 +21,29 @@ import AdminOrders from "./admin/AdminOrders";
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Layout>
+      <CartProvider>
+        <BrowserRouter>
           <Routes>
-            {/* STATIC */}
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
+            {/* GLOBAL SITE LAYOUT (Navbar + Footer) */}
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="about" element={<About />} />
+              <Route path="shop" element={<Shop />} />
 
-            {/* SHOP */}
-            <Route path="/shop" element={<Shop />} />
+              <Route path="auth/*" element={<AuthPage />} />
+              <Route path="my-orders" element={<MyOrders />} />
 
-            {/* AUTH */}
-            <Route path="/auth/*" element={<AuthPage />} />
-
-            {/* USER */}
-            <Route path="/my-orders" element={<MyOrders />} />
-
-            {/* ADMIN (protected inside AdminLayout) */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="products/new" element={<AddProduct />} />
-              <Route path="products/:id/edit" element={<EditProduct />} />
-              <Route path="orders" element={<AdminOrders />} />
+              <Route path="admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="products/new" element={<AddProduct />} />
+                <Route path="products/:id/edit" element={<EditProduct />} />
+                <Route path="orders" element={<AdminOrders />} />
+              </Route>
             </Route>
           </Routes>
-        </Layout>
-      </BrowserRouter>
+        </BrowserRouter>
+      </CartProvider>
     </AuthProvider>
   );
 }
