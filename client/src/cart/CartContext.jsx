@@ -20,9 +20,7 @@ export function CartProvider({ children }) {
   function updateQty(id, qty) {
     const q = Number(qty);
     if (!Number.isFinite(q)) return;
-    setItems((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, quantity: q } : p))
-    );
+    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, quantity: q } : p)));
   }
 
   function removeFromCart(id) {

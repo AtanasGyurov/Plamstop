@@ -1,5 +1,4 @@
-// client/src/App.jsx
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import { CartProvider } from "./cart/CartContext";
 
@@ -24,23 +23,26 @@ export default function App() {
       <CartProvider>
         <BrowserRouter>
           <Routes>
-            {/* GLOBAL SITE LAYOUT (Navbar + Footer) */}
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Home />} />
-              <Route path="about" element={<About />} />
-              <Route path="shop" element={<Shop />} />
-
-              <Route path="auth/*" element={<AuthPage />} />
-              <Route path="my-orders" element={<MyOrders />} />
-
-              <Route path="admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="products/new" element={<AddProduct />} />
-                <Route path="products/:id/edit" element={<EditProduct />} />
-                <Route path="orders" element={<AdminOrders />} />
-              </Route>
+            {/* Public + user pages with global Navbar + Footer */}
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/auth/*" element={<AuthPage />} />
+              <Route path="/my-orders" element={<MyOrders />} />
             </Route>
+
+            {/* Admin separate (AdminLayout has its own layout) */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="products/new" element={<AddProduct />} />
+              <Route path="products/:id/edit" element={<EditProduct />} />
+              <Route path="orders" element={<AdminOrders />} />
+            </Route>
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </CartProvider>
