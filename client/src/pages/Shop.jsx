@@ -26,16 +26,14 @@ function Shop() {
   }, []);
 
   return (
-    <div className="page">
-      <div className="container">
-        <h1 className="pageTitle">Plamstop 🔥</h1>
-        <p className="muted">Магазин за пожарна безопасност</p>
+    <div className="container">
+      <h1 className="pageTitle">Plamstop 🔥</h1>
+      <p className="muted">Магазин за пожарна безопасност</p>
 
-        {loading && <p>Зареждане на продукти…</p>}
-        {error && <p className="textError">{error}</p>}
+      {loading && <p>Зареждане на продукти…</p>}
+      {error && <p className="textError">{error}</p>}
 
-        <ProductList products={products} onAddToCart={addToCart} />
-      </div>
+      <ProductList products={products} onAddToCart={addToCart} />
     </div>
   );
 }

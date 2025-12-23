@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import { CartProvider } from "./cart/CartContext";
 
@@ -32,7 +32,7 @@ export default function App() {
               <Route path="/my-orders" element={<MyOrders />} />
             </Route>
 
-            {/* Admin separate (AdminLayout has its own layout) */}
+            {/* Admin stays separate */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />
@@ -40,9 +40,6 @@ export default function App() {
               <Route path="products/:id/edit" element={<EditProduct />} />
               <Route path="orders" element={<AdminOrders />} />
             </Route>
-
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </CartProvider>

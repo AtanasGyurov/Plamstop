@@ -1,94 +1,66 @@
 import { NavLink, Link } from "react-router-dom";
-import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useCart } from "../cart/CartContext";
-import CartDrawer from "../cart/CartDrawer";
 
-export default function Navbar() {
+export default function Navbar({ onOpenCart }) {
   const { user, role, logout } = useAuth();
   const { totalQty } = useCart();
-  const [cartOpen, setCartOpen] = useState(false);
 
   return (
-    <>
-      <header className="siteHeader">
-        <div className="headerInner">
-          <div className="left">
-            <Link to="/" className="brand">
-              <span className="brandName">Plamstop</span>
-              <span className="brandEmoji" aria-hidden>
-                🔥
-              </span>
-            </Link>
+    <header className="siteHeader">
+      <div className="headerInner">
+        <Link to="/" className="brand">
+          <span className="brandName">Plamstop</span>
+          <span className="brandEmoji" aria-hidden>🔥</span>
+        </Link>
 
-            <nav className="navLinks">
-              <NavLink
-                to="/"
-                className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
-              >
-                Начало
-              </NavLink>
+        <nav className="navLinks">
+          <NavLink to="/" className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}>
+            Начало
+          </NavLink>
+          <NavLink to="/about" className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}>
+            За нас
+          </NavLink>
+          <NavLink to="/shop" className={({ isActive }) => `navBtn accent ${isActive ? "active" : ""}`}>
+            Магазин
+          </NavLink>
+        </nav>
 
-              <NavLink
-                to="/about"
-                className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
-              >
-                За нас
-              </NavLink>
+        <div className="navRight">
+          {!user ? (
+            <NavLink to="/auth/login" className="navBtn">
+              Вход / Регистрация
+            </NavLink>
+          ) : (
+            <>
+              <div className="whoami">
+                Влезли сте като <strong>{user.email}</strong>{" "}
+                <span className="muted">({role})</span>
+              </div>
 
-              <NavLink
-                to="/shop"
-                className={({ isActive }) =>
-                  `navBtn accent ${isActive ? "active" : ""}`
-                }
-              >
-                Магазин
-              </NavLink>
-            </nav>
-          </div>
+              <button type="button" className="navBtn" onClick={onOpenCart}>
+                Количка <span className="badge">{totalQty}</span>
+              </button>
 
-          <div className="navRight">
-            {!user ? (
-              <NavLink to="/auth/login" className="navBtn">
-                Вход / Регистрация
-              </NavLink>
-            ) : (
-              <>
-                <div className="whoami">
-                  Влезли сте като <strong>{user.email}</strong>{" "}
-                  <span className="muted">({role})</span>
-                </div>
+              {role !== "admin" && (
+                <NavLink to="/my-orders" className="navBtn">
+                  Моите поръчки
+                </NavLink>
+              )}
 
-                <button className="navBtn" onClick={() => setCartOpen(true)}>
-                  Количка <span className="badge">{totalQty}</span>
-                </button>
+              {role === "admin" && (
+                <NavLink to="/admin" className="navBtn danger">
+                  Администрация
+                </NavLink>
+              )}
 
-                {role !== "admin" && (
-                  <NavLink to="/my-orders" className="navBtn">
-                    Моите поръчки
-                  </NavLink>
-                )}
-
-                {role === "admin" && (
-                  <NavLink to="/admin" className="navBtn danger">
-                    Администрация
-                  </NavLink>
-                )}
-
-                <button className="navBtn danger" onClick={logout}>
-                  Изход
-                </button>
-              </>
-            )}
-          </div>
+              <button type="button" className="navBtn danger" onClick={logout}>
+                Изход
+              </button>
+            </>
+          )}
         </div>
-      </header>
-
-      <CartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        defaultEmail={user?.email || ""}
-      />
-    </>
+      </div>
+    </header>
   );
 }
