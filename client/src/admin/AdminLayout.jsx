@@ -1,56 +1,68 @@
-import { Outlet, Navigate, Link } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 export default function AdminLayout() {
-  const { user, role } = useAuth();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
-  // Само админи
-  if (!user || role !== "admin") {
-    return <Navigate to="/" replace />;
+  function exitAdmin() {
+    navigate("/");
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#111" }}>
-      {/* Странично меню */}
-      <div
-        style={{
-          width: "240px",
-          background: "#1c1c1c",
-          padding: "20px",
-          color: "white",
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-        }}
-      >
-        <h2 style={{ marginBottom: "20px" }}>Админ панел 🔥</h2>
+    <div className="page">
+      {/* ADMIN HEADER */}
+      <header className="siteHeader">
+        <div className="headerInner headerInnerFull">
+          <div className="left">
+            <div className="brand">
+              <span className="brandName">Plamstop</span>
+              <span className="brandEmoji">🔥</span>
+            </div>
 
-        <Link to="/admin" style={{ color: "white" }}>
-          Табло
-        </Link>
-        <Link to="/admin/products" style={{ color: "white" }}>
-          Продукти
-        </Link>
-        <Link to="/admin/products/new" style={{ color: "white" }}>
-          + Добави продукт
-        </Link>
-        <Link to="/admin/orders" style={{ color: "white" }}>
-          Поръчки
-        </Link>
-      </div>
+            <nav className="navLinks">
+              <NavLink
+                to="/admin"
+                end
+                className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
+              >
+                Табло
+              </NavLink>
 
-      {/* Основно съдържание */}
-      <div
-        style={{
-          flex: 1,
-          background: "#222",
-          padding: "30px",
-          color: "white",
-          overflowY: "auto",
-        }}
-      >
+              <NavLink
+                to="/admin/products"
+                className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
+              >
+                Продукти
+              </NavLink>
+
+              <NavLink
+                to="/admin/orders"
+                className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
+              >
+                Поръчки
+              </NavLink>
+            </nav>
+          </div>
+
+          <div className="navRight">
+            {/* ✅ EXIT ADMIN */}
+            <button className="navBtn" onClick={exitAdmin}>
+              ← Към сайта
+            </button>
+
+            {/* LOGOUT */}
+            <button className="navBtn danger" onClick={logout}>
+              Изход
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ADMIN CONTENT */}
+      <main className="pageMain">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }

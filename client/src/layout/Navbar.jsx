@@ -1,4 +1,4 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useCart } from "../cart/CartContext";
 
@@ -8,23 +8,45 @@ export default function Navbar({ onOpenCart }) {
 
   return (
     <header className="siteHeader">
-      <div className="headerInner">
-        <Link to="/" className="brand">
-          <span className="brandName">Plamstop</span>
-          <span className="brandEmoji" aria-hidden>🔥</span>
-        </Link>
+      <div className="headerInner headerInnerFull">
+        <div className="left">
+          <div className="brand">
+            <span className="brandName">Plamstop</span>
+            <span className="brandEmoji">🔥</span>
+          </div>
 
-        <nav className="navLinks">
-          <NavLink to="/" className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}>
-            Начало
-          </NavLink>
-          <NavLink to="/about" className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}>
-            За нас
-          </NavLink>
-          <NavLink to="/shop" className={({ isActive }) => `navBtn accent ${isActive ? "active" : ""}`}>
-            Магазин
-          </NavLink>
-        </nav>
+          <nav className="navLinks">
+            <NavLink
+              to="/"
+              className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
+            >
+              Начало
+            </NavLink>
+
+            <NavLink
+              to="/about"
+              className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
+            >
+              За нас
+            </NavLink>
+
+            <NavLink
+              to="/shop"
+              className={({ isActive }) =>
+                `navBtn ${isActive ? "active accent" : ""}`
+              }
+            >
+              Магазин
+            </NavLink>
+
+            <NavLink
+              to="/contacts"
+              className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
+            >
+              Контакти
+            </NavLink>
+          </nav>
+        </div>
 
         <div className="navRight">
           {!user ? (
@@ -33,12 +55,19 @@ export default function Navbar({ onOpenCart }) {
             </NavLink>
           ) : (
             <>
+              {/* ✅ WHOAMI FIRST */}
               <div className="whoami">
                 Влезли сте като <strong>{user.email}</strong>{" "}
                 <span className="muted">({role})</span>
               </div>
 
-              <button type="button" className="navBtn" onClick={onOpenCart}>
+              {/* ✅ CART AFTER WHOAMI */}
+              <button
+                type="button"
+                className="navBtn"
+                onClick={onOpenCart}
+                aria-label="Отвори количката"
+              >
                 Количка <span className="badge">{totalQty}</span>
               </button>
 
@@ -54,7 +83,7 @@ export default function Navbar({ onOpenCart }) {
                 </NavLink>
               )}
 
-              <button type="button" className="navBtn danger" onClick={logout}>
+              <button className="navBtn danger" onClick={logout}>
                 Изход
               </button>
             </>

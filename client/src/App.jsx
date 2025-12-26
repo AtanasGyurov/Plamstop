@@ -9,6 +9,7 @@ import About from "./pages/About";
 import Shop from "./pages/Shop";
 import AuthPage from "./auth/AuthPage";
 import MyOrders from "./pages/MyOrders";
+import Contacts from "./pages/Contacts";
 
 import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
@@ -23,11 +24,12 @@ export default function App() {
       <CartProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public + user pages with global Navbar + Footer */}
+            {/* Public + user pages with global Navbar + Footer + CartDrawer */}
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/shop" element={<Shop />} />
+              <Route path="/contacts" element={<Contacts />} />
               <Route path="/auth/*" element={<AuthPage />} />
               <Route path="/my-orders" element={<MyOrders />} />
             </Route>

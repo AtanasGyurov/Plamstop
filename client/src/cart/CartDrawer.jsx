@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../api";
 import Cart from "../components/Cart";
 import { useCart } from "./CartContext";
 
 export default function CartDrawer({ open, onClose, defaultEmail }) {
   const { items, updateQty, removeFromCart, clearCart, totalAmount } = useCart();
+
   const [step, setStep] = useState("cart"); // "cart" | "checkout"
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
@@ -15,6 +16,20 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
   const [note, setNote] = useState("");
 
   const canCheckout = useMemo(() => items.length > 0, [items]);
+
+  // keep email synced when user logs in/out
+  useEffect(() => {
+    setCustomerEmail(defaultEmail || "");
+  }, [defaultEmail]);
+
+  // reset messages when opened
+  useEffect(() => {
+    if (open) {
+      setError("");
+      setMsg("");
+      setStep("cart");
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -67,7 +82,7 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
       <aside className="drawer" onClick={(e) => e.stopPropagation()}>
         <div className="drawerHeader">
           <strong>{step === "cart" ? "Количка" : "Завършване на поръчка"}</strong>
-          <button className="navBtn" onClick={onClose} type="button">
+          <button type="button" className="navBtn" onClick={onClose}>
             ✕
           </button>
         </div>
@@ -77,14 +92,12 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
 
         {step === "cart" ? (
           <>
-            <div style={{ padding: 14, overflow: "auto" }}>
-              <Cart
-                items={items}
-                onChangeQty={updateQty}
-                onRemove={removeFromCart}
-                onClear={clearCart}
-              />
-            </div>
+            <Cart
+              items={items}
+              onChangeQty={updateQty}
+              onRemove={removeFromCart}
+              onClear={clearCart}
+            />
 
             <div className="drawerFooter">
               <div className="totalRow">
@@ -93,40 +106,39 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
               </div>
 
               <button
+                type="button"
                 className="navBtn accent"
                 disabled={!canCheckout}
                 onClick={() => setStep("checkout")}
-                type="button"
+                style={{ opacity: canCheckout ? 1 : 0.5, cursor: canCheckout ? "pointer" : "not-allowed" }}
               >
                 Към поръчка →
               </button>
             </div>
           </>
         ) : (
-          <>
-            <form className="form" onSubmit={submitOrder}>
-              <label>Име</label>
-              <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+          <form className="form" onSubmit={submitOrder}>
+            <label>Име</label>
+            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
 
-              <label>Имейл</label>
-              <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
+            <label>Имейл</label>
+            <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
 
-              <label>Адрес</label>
-              <input value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} />
+            <label>Адрес</label>
+            <input value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} />
 
-              <label>Бележка</label>
-              <textarea value={note} onChange={(e) => setNote(e.target.value)} />
+            <label>Бележка</label>
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} />
 
-              <div className="drawerFooter">
-                <button type="button" className="navBtn" onClick={() => setStep("cart")}>
-                  ← Назад
-                </button>
-                <button type="submit" className="navBtn accent">
-                  Направи поръчка
-                </button>
-              </div>
-            </form>
-          </>
+            <div className="drawerFooter row">
+              <button type="button" className="navBtn" onClick={() => setStep("cart")}>
+                ← Назад
+              </button>
+              <button type="submit" className="navBtn accent">
+                Направи поръчка
+              </button>
+            </div>
+          </form>
         )}
       </aside>
     </div>
