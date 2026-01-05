@@ -1,199 +1,94 @@
 import { useMemo, useState } from "react";
+import api from "../api";
 
 export default function Contacts() {
-  const addressLine1 = "Мараша, Район Централен, ул. „Тодор Икономов“ 4";
-  const addressLine2 = "4002 Пловдив";
-  const fullAddress =
-    "Мараша Район Централен, ул. „Тодор Икономов“ 4, 4002 Пловдив";
+  const ADDRESS_LINE_1 = "Мараша, Район Централен, ул. „Тодор Икономов“ 4";
+  const ADDRESS_LINE_2 = "4002 Пловдив";
 
-  // (Засега е само UI форма – без реално изпращане, както каза)
+  // Google Maps embed (search by address)
+  const mapSrc = useMemo(() => {
+    const q = encodeURIComponent(
+      `${ADDRESS_LINE_1}, ${ADDRESS_LINE_2}, Bulgaria`
+    );
+    return `https://www.google.com/maps?q=${q}&output=embed`;
+  }, []);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [topic, setTopic] = useState("");
+  const [subject, setSubject] = useState("Запитване от сайта");
   const [message, setMessage] = useState("");
 
-  const mapSrc = useMemo(() => {
-    // Google Maps embed по адрес (без API key)
-    const q = encodeURIComponent(fullAddress);
-    return `https://www.google.com/maps?q=${q}&output=embed`;
-  }, [fullAddress]);
+  const [loading, setLoading] = useState(false);
+  const [okMsg, setOkMsg] = useState("");
+  const [errMsg, setErrMsg] = useState("");
 
-  function handleSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
-    // Засега само UI (по-късно ще вържем имейл изпращане)
-    alert("Формата е подготвена. Следващата стъпка е реално изпращане на имейл.");
+    setOkMsg("");
+    setErrMsg("");
+
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      setErrMsg("Моля, попълнете Име, Имейл и Съобщение.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.post("/contact", {
+        name: name.trim(),
+        email: email.trim(),
+        subject: subject.trim() || "Запитване от сайта",
+        message: message.trim(),
+      });
+
+      setOkMsg("Изпратено! Ще се свържем с вас възможно най-скоро.");
+      setName("");
+      setEmail("");
+      setSubject("Запитване от сайта");
+      setMessage("");
+    } catch (err) {
+      console.error(err);
+      setErrMsg("Грешка при изпращане. Опитайте отново след малко.");
+    } finally {
+      setLoading(false);
+    }
   }
 
+  // Dark inputs without global CSS changes
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: 12,
+    border: "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(10,12,18,0.55)",
+    color: "rgba(255,255,255,0.92)",
+    outline: "none",
+  };
+
+  const labelStyle = { fontWeight: 800, marginTop: 10, display: "block" };
+
   return (
-    <div className="page">
-      <div className="container">
-        <h1 className="pageTitle">Контакти</h1>
-        <p className="muted" style={{ marginTop: 6 }}>
-          Свържи се с нас за оферта, консултация или допълнителна информация.
-        </p>
+    <div className="container">
+      <h1 style={{ marginBottom: 6 }}>Контакти</h1>
+      <p className="muted" style={{ marginTop: 0 }}>
+        Свържи се с нас за оферта, консултация или допълнителна информация.
+      </p>
 
-        {/* ✅ 2-column layout: left info+form, right map */}
-        <div
-          style={{
-            marginTop: 18,
-            display: "grid",
-            gridTemplateColumns: "1fr 1.2fr",
-            gap: 18,
-            alignItems: "start",
-          }}
-        >
-          {/* LEFT */}
-          <div style={{ display: "grid", gap: 18 }}>
-            {/* Address card */}
-            <section
-              style={{
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 16,
-                overflow: "hidden",
-                background: "rgba(255,255,255,0.06)",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
-              }}
-            >
-              <div
-                style={{
-                  padding: "12px 14px",
-                  borderBottom: "1px solid rgba(255,255,255,0.10)",
-                  background:
-                    "linear-gradient(135deg, rgba(255,122,24,0.16), rgba(211,47,47,0.16))",
-                  fontWeight: 900,
-                }}
-              >
-                Адрес
-              </div>
-
-              <div style={{ padding: 14, display: "grid", gap: 10 }}>
-                <div style={{ fontWeight: 800 }}>{addressLine1}</div>
-                <div className="muted">{addressLine2}</div>
-
-                <div style={{ marginTop: 6, display: "grid", gap: 6 }}>
-                  <div>
-                    <strong>Телефон:</strong>{" "}
-                    <span className="muted">(по избор)</span>
-                  </div>
-                  <div>
-                    <strong>Имейл:</strong>{" "}
-                    <span className="muted">(по избор)</span>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Form card (under info) */}
-            <section
-              style={{
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 16,
-                overflow: "hidden",
-                background: "rgba(255,255,255,0.06)",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
-              }}
-            >
-              <div
-                style={{
-                  padding: "12px 14px",
-                  borderBottom: "1px solid rgba(255,255,255,0.10)",
-                  background:
-                    "linear-gradient(135deg, rgba(255,122,24,0.16), rgba(211,47,47,0.16))",
-                  fontWeight: 900,
-                }}
-              >
-                Запитване
-              </div>
-
-              <form
-                onSubmit={handleSubmit}
-                style={{ padding: 14, display: "grid", gap: 10 }}
-              >
-                <label style={{ fontWeight: 800 }}>Име</label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Вашето име"
-                  style={{
-                    padding: "10px 12px",
-                    borderRadius: 12,
-                    border: "1px solid rgba(255,255,255,0.14)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "rgba(255,255,255,0.92)",
-                  }}
-                />
-
-                <label style={{ fontWeight: 800 }}>Имейл</label>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  style={{
-                    padding: "10px 12px",
-                    borderRadius: 12,
-                    border: "1px solid rgba(255,255,255,0.14)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "rgba(255,255,255,0.92)",
-                  }}
-                />
-
-                <label style={{ fontWeight: 800 }}>Тема</label>
-                <input
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="Напр. оферта, консултация, продукт..."
-                  style={{
-                    padding: "10px 12px",
-                    borderRadius: 12,
-                    border: "1px solid rgba(255,255,255,0.14)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "rgba(255,255,255,0.92)",
-                  }}
-                />
-
-                <label style={{ fontWeight: 800 }}>Съобщение</label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Опиши от какво имаш нужда…"
-                  rows={5}
-                  style={{
-                    padding: "10px 12px",
-                    borderRadius: 12,
-                    border: "1px solid rgba(255,255,255,0.14)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "rgba(255,255,255,0.92)",
-                    resize: "vertical",
-                  }}
-                />
-
-                <button
-                  type="submit"
-                  style={{
-                    marginTop: 6,
-                    padding: "10px 12px",
-                    borderRadius: 12,
-                    border: "1px solid rgba(255,122,24,0.35)",
-                    background: "rgba(255,122,24,0.18)",
-                    color: "rgba(255,255,255,0.95)",
-                    cursor: "pointer",
-                    fontWeight: 900,
-                  }}
-                >
-                  Изпрати запитване
-                </button>
-
-                <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>
-                  * Изпращането ще го вържем по-късно (backend/email service).
-                </div>
-              </form>
-            </section>
-          </div>
-
-          {/* RIGHT */}
+      {/* Two-column responsive layout */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1.2fr",
+          gap: 18,
+          alignItems: "start",
+        }}
+      >
+        {/* LEFT */}
+        <div style={{ display: "grid", gap: 18 }}>
+          {/* Address card */}
           <section
             style={{
-              border: "1px solid rgba(255,255,255,0.12)",
+              border: "1px solid rgba(255,255,255,0.14)",
               borderRadius: 16,
               overflow: "hidden",
               background: "rgba(255,255,255,0.06)",
@@ -202,57 +97,174 @@ export default function Contacts() {
           >
             <div
               style={{
-                padding: "12px 14px",
+                padding: 14,
+                fontWeight: 900,
                 borderBottom: "1px solid rgba(255,255,255,0.10)",
                 background:
-                  "linear-gradient(135deg, rgba(255,122,24,0.16), rgba(211,47,47,0.16))",
-                fontWeight: 900,
+                  "linear-gradient(135deg, rgba(255,122,24,0.18), rgba(211,47,47,0.18))",
               }}
             >
-              Карта
+              Адрес
             </div>
 
-            <div style={{ padding: 12 }}>
-              <div
-                style={{
-                  width: "100%",
-                  aspectRatio: "16 / 10",
-                  borderRadius: 14,
-                  overflow: "hidden",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(0,0,0,0.25)",
-                }}
-              >
-                <iframe
-                  title="Plamstop Map"
-                  src={mapSrc}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
+            <div style={{ padding: 14, lineHeight: 1.5 }}>
+              <div style={{ fontWeight: 900 }}>{ADDRESS_LINE_1}</div>
+              <div>{ADDRESS_LINE_2}</div>
 
-              <div className="muted" style={{ fontSize: 12, marginTop: 10 }}>
-                Ако картата не се зарежда, отвори адреса директно в Google Maps.
+              <div style={{ height: 10 }} />
+
+              <div>
+                <strong>Телефон:</strong>{" "}
+                <span className="muted">(по избор)</span>
               </div>
+              <div>
+                <strong>Имейл:</strong>{" "}
+                <span className="muted">(по избор)</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Form card */}
+          <section
+            style={{
+              border: "1px solid rgba(255,255,255,0.14)",
+              borderRadius: 16,
+              overflow: "hidden",
+              background: "rgba(255,255,255,0.06)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div
+              style={{
+                padding: 14,
+                fontWeight: 900,
+                borderBottom: "1px solid rgba(255,255,255,0.10)",
+                background:
+                  "linear-gradient(135deg, rgba(255,122,24,0.18), rgba(211,47,47,0.18))",
+              }}
+            >
+              Запитване (имейл)
+            </div>
+
+            <div style={{ padding: 14 }}>
+              {okMsg && (
+                <div
+                  style={{
+                    border: "1px solid rgba(80,200,120,0.35)",
+                    background: "rgba(80,200,120,0.12)",
+                    padding: 10,
+                    borderRadius: 12,
+                    marginBottom: 10,
+                  }}
+                >
+                  {okMsg}
+                </div>
+              )}
+
+              {errMsg && (
+                <div
+                  style={{
+                    border: "1px solid rgba(211,47,47,0.45)",
+                    background: "rgba(211,47,47,0.12)",
+                    padding: 10,
+                    borderRadius: 12,
+                    marginBottom: 10,
+                  }}
+                >
+                  {errMsg}
+                </div>
+              )}
+
+              <form onSubmit={onSubmit}>
+                <label style={labelStyle}>Име</label>
+                <input
+                  style={inputStyle}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Вашето име"
+                />
+
+                <label style={labelStyle}>Имейл</label>
+                <input
+                  style={inputStyle}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@email.com"
+                />
+
+                <label style={labelStyle}>Тема</label>
+                <input
+                  style={inputStyle}
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="Тема"
+                />
+
+                <label style={labelStyle}>Съобщение</label>
+                <textarea
+                  style={{ ...inputStyle, minHeight: 120, resize: "vertical" }}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Напишете кратко запитване…"
+                />
+
+                <button
+                  type="submit"
+                  className="navBtn accent"
+                  disabled={loading}
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    marginTop: 12,
+                    opacity: loading ? 0.7 : 1,
+                  }}
+                >
+                  {loading ? "Изпращане…" : "Изпрати"}
+                </button>
+              </form>
             </div>
           </section>
         </div>
 
-        {/* ✅ small responsive tweak without CSS file */}
-        <div
+        {/* RIGHT: Map */}
+        <section
           style={{
-            height: 1,
-            opacity: 0,
+            border: "1px solid rgba(255,255,255,0.14)",
+            borderRadius: 16,
+            overflow: "hidden",
+            background: "rgba(255,255,255,0.06)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
           }}
-        />
+        >
+          <div
+            style={{
+              padding: 14,
+              fontWeight: 900,
+              borderBottom: "1px solid rgba(255,255,255,0.10)",
+              background:
+                "linear-gradient(135deg, rgba(255,122,24,0.18), rgba(211,47,47,0.18))",
+            }}
+          >
+            Карта
+          </div>
+
+          <div style={{ height: 420 }}>
+            <iframe
+              title="Plamstop Map"
+              src={mapSrc}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </section>
       </div>
 
-      {/* Responsive: stack on small screens */}
+      {/* Responsive fallback */}
       <style>{`
-        @media (max-width: 900px) {
+        @media (max-width: 920px) {
           .container > div[style*="grid-template-columns"] {
             grid-template-columns: 1fr !important;
           }

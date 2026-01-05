@@ -7,9 +7,12 @@ import Layout from "./layout/Layout";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Shop from "./pages/Shop";
+import Contacts from "./pages/Contacts";
+import Certificates from "./pages/Certificates";
+import Partners from "./pages/Partners";
+
 import AuthPage from "./auth/AuthPage";
 import MyOrders from "./pages/MyOrders";
-import Contacts from "./pages/Contacts";
 
 import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
@@ -24,17 +27,22 @@ export default function App() {
       <CartProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public + user pages with global Navbar + Footer + CartDrawer */}
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/shop" element={<Shop />} />
+
+              {/* ✅ FIX: /contacts route exists */}
               <Route path="/contacts" element={<Contacts />} />
+
+              {/* ✅ NEW pages */}
+              <Route path="/certificates" element={<Certificates />} />
+              <Route path="/partners" element={<Partners />} />
+
               <Route path="/auth/*" element={<AuthPage />} />
               <Route path="/my-orders" element={<MyOrders />} />
             </Route>
 
-            {/* Admin stays separate */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />

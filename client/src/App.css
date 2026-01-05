@@ -260,3 +260,38 @@
   min-height: 90px;
   resize: vertical;
 }
+
+/* Contacts form – dark inputs (fixes white clash) */
+.form .input,
+.form .textarea,
+.form input,
+.form textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.form .textarea,
+.form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form .input::placeholder,
+.form .textarea::placeholder,
+.form input::placeholder,
+.form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.form .input:focus,
+.form .textarea:focus,
+.form input:focus,
+.form textarea:focus {
+  border-color: rgba(255, 122, 24, 0.45);
+  box-shadow: 0 0 0 3px rgba(255, 122, 24, 0.15);
+}
