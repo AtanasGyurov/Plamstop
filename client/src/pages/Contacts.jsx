@@ -114,12 +114,12 @@ export default function Contacts() {
               <div style={{ height: 10 }} />
 
               <div>
-                <strong>Телефон:</strong>{" "}
-                <span className="muted">(по избор)</span>
+                <strong>Телефон: 0888447383</strong>{" "}
+                
               </div>
               <div>
-                <strong>Имейл:</strong>{" "}
-                <span className="muted">(по избор)</span>
+                <strong>Имейл: plamstop.contact@gmail.com</strong>{" "}
+                
               </div>
             </div>
           </section>
@@ -184,7 +184,7 @@ export default function Contacts() {
                   placeholder="Вашето име"
                 />
 
-                <label style={labelStyle}>Имейл</label>
+                <label style={labelStyle}>Имейл за обратна връзка</label>
                 <input
                   style={inputStyle}
                   value={email}

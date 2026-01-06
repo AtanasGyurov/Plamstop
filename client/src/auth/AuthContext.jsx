@@ -24,38 +24,56 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true);
+    let unsub = null;
 
-      if (!firebaseUser) {
-        setUser(null);
-        setRole("client");
-        setToken(null);
+    (async () => {
+      // ✅ Logout ONCE per browser tab session (not on refresh)
+      const didLogout = sessionStorage.getItem("plamstop_logout_once");
+      if (!didLogout) {
+        sessionStorage.setItem("plamstop_logout_once", "1");
+        try {
+          await signOut(auth);
+        } catch (e) {
+          // ignore
+        }
+        // also clear any leftover token
         localStorage.removeItem("token");
-        setLoading(false);
-        return;
       }
 
-      // 🔥 Firebase ID token
-      const token = await firebaseUser.getIdToken();
-      setToken(token);
-      localStorage.setItem("token", token);
+      unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+        setLoading(true);
 
-      // 🔥 Взимаме роля и профил от бекенда
-      const profile = await fetchUserProfile();
+        if (!firebaseUser) {
+          setUser(null);
+          setRole("client");
+          setToken(null);
+          localStorage.removeItem("token");
+          setLoading(false);
+          return;
+        }
 
-      setUser({
-        email: firebaseUser.email,
-        uid: firebaseUser.uid,
-        name: profile?.name || "",
+        // 🔥 Firebase ID token
+        const t = await firebaseUser.getIdToken();
+        setToken(t);
+        localStorage.setItem("token", t);
+
+        // 🔥 Взимаме роля и профил от бекенда
+        const profile = await fetchUserProfile();
+
+        setUser({
+          email: firebaseUser.email,
+          uid: firebaseUser.uid,
+          name: profile?.name || "",
+        });
+
+        setRole(profile?.role || "client");
+        setLoading(false);
       });
+    })();
 
-      setRole(profile?.role || "client");
-
-      setLoading(false);
-    });
-
-    return () => unsub();
+    return () => {
+      if (unsub) unsub();
+    };
   }, []);
 
   async function logout() {
