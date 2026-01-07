@@ -12,24 +12,44 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Missing fields" });
     }
 
+    // ✅ Fail fast if env is not loaded
+    const SMTP_HOST = process.env.SMTP_HOST;
+    const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+    const SMTP_USER = process.env.SMTP_USER;
+    const SMTP_PASS = process.env.SMTP_PASS;
+
+    if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+      console.error("❌ Missing SMTP env:", {
+        SMTP_HOST: !!SMTP_HOST,
+        SMTP_USER: !!SMTP_USER,
+        SMTP_PASS: !!SMTP_PASS,
+      });
+      return res.status(500).json({ error: "SMTP is not configured" });
+    }
+
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: Number(process.env.SMTP_PORT) === 465, // 465 = true
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465, // true only for 465
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
+
+      // ✅ Helps with Gmail + prevents some TLS edge cases
+      requireTLS: SMTP_PORT === 587,
+      tls: {
+        servername: SMTP_HOST,
       },
     });
 
-    const to = process.env.SUPPORT_TO || process.env.SMTP_USER;
+    // Optional: verifies login early (better error message)
+    await transporter.verify();
 
+    const to = process.env.SUPPORT_TO || SMTP_USER;
     const safeSubject = (subject || "Запитване от сайта").slice(0, 140);
 
     await transporter.sendMail({
-      from: `Plamstop Website <${process.env.SMTP_USER}>`,
+      from: `Plamstop Website <${SMTP_USER}>`,
       to,
-      replyTo: email, // ✅ so you can reply directly to the customer
+      replyTo: email,
       subject: `📩 ${safeSubject}`,
       text:
         `Име: ${name}\n` +
