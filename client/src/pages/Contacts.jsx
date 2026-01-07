@@ -1,7 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import api from "../api";
+import { useAuth } from "../auth/AuthContext"; // ✅ add
 
 export default function Contacts() {
+  const { user } = useAuth(); // ✅ add
+
   const ADDRESS_LINE_1 = "Мараша, Район Централен, ул. „Тодор Икономов“ 4";
   const ADDRESS_LINE_2 = "4002 Пловдив";
 
@@ -14,13 +17,23 @@ export default function Contacts() {
   }, []);
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(user?.email || ""); // ✅ prefill
   const [subject, setSubject] = useState("Запитване от сайта");
   const [message, setMessage] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [okMsg, setOkMsg] = useState("");
   const [errMsg, setErrMsg] = useState("");
+
+  // ✅ keep email prefilled if user changes (login/logout) while on the page
+  useEffect(() => {
+    setEmail((prev) => {
+      // If email is empty OR it equals the previous user's email, update it.
+      // This keeps manual edits intact (doesn't overwrite what the user typed).
+      if (!prev.trim()) return user?.email || "";
+      return prev;
+    });
+  }, [user]);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -43,7 +56,8 @@ export default function Contacts() {
 
       setOkMsg("Изпратено! Ще се свържем с вас възможно най-скоро.");
       setName("");
-      setEmail("");
+      // ✅ keep email (like cart). If user is logged in, keep their email:
+      setEmail((user?.email || email).trim());
       setSubject("Запитване от сайта");
       setMessage("");
     } catch (err) {
@@ -115,11 +129,9 @@ export default function Contacts() {
 
               <div>
                 <strong>Телефон: 0888447383</strong>{" "}
-                
               </div>
               <div>
                 <strong>Имейл: plamstop.contact@gmail.com</strong>{" "}
-                
               </div>
             </div>
           </section>
@@ -186,9 +198,10 @@ export default function Contacts() {
 
                 <label style={labelStyle}>Имейл за обратна връзка</label>
                 <input
+                  type="email" // ✅ small improvement
                   style={inputStyle}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)} // ✅ still editable
                   placeholder="example@email.com"
                 />
 
