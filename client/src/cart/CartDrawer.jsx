@@ -1,26 +1,32 @@
+// client/src/cart/CartDrawer.jsx
 import { useEffect, useMemo, useState } from "react";
 import api from "../api";
 import Cart from "../components/Cart";
 import { useCart } from "./CartContext";
 
-export default function CartDrawer({ open, onClose, defaultEmail }) {
+export default function CartDrawer({ open, onClose, defaultEmail, defaultName }) {
   const { items, updateQty, removeFromCart, clearCart, totalAmount } = useCart();
 
   const [step, setStep] = useState("cart"); // "cart" | "checkout"
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
 
-  const [customerName, setCustomerName] = useState("");
+  const [customerName, setCustomerName] = useState(defaultName || "");
   const [customerEmail, setCustomerEmail] = useState(defaultEmail || "");
   const [customerAddress, setCustomerAddress] = useState("");
   const [note, setNote] = useState("");
 
   const canCheckout = useMemo(() => items.length > 0, [items]);
 
-  // keep email synced when user logs in/out
+  // ✅ keep email synced, BUT don't overwrite if user already typed something
   useEffect(() => {
-    setCustomerEmail(defaultEmail || "");
+    setCustomerEmail((prev) => (prev?.trim() ? prev : defaultEmail || ""));
   }, [defaultEmail]);
+
+  // ✅ keep name synced, BUT don't overwrite if user already typed something
+  useEffect(() => {
+    setCustomerName((prev) => (prev?.trim() ? prev : defaultName || ""));
+  }, [defaultName]);
 
   // reset messages when opened
   useEffect(() => {
@@ -28,8 +34,12 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
       setError("");
       setMsg("");
       setStep("cart");
+
+      // ✅ if fields are empty when opening, prefill them
+      setCustomerEmail((prev) => (prev?.trim() ? prev : defaultEmail || ""));
+      setCustomerName((prev) => (prev?.trim() ? prev : defaultName || ""));
     }
-  }, [open]);
+  }, [open, defaultEmail, defaultName]);
 
   if (!open) return null;
 
@@ -39,12 +49,13 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
     setMsg("");
 
     if (items.length === 0) return setError("Количката е празна.");
-    if (!customerName || !customerEmail)
+    if (!customerName?.trim() || !customerEmail?.trim()) {
       return setError("Името и имейлът са задължителни.");
+    }
 
     const payload = {
-      customerName,
-      customerEmail,
+      customerName: customerName.trim(),
+      customerEmail: customerEmail.trim(),
       customerAddress,
       note,
       items: items.map((item) => ({
@@ -63,7 +74,9 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
       if (res.data?.id) {
         setMsg("Поръчката е създадена успешно. № " + res.data.id);
         clearCart();
-        setCustomerName("");
+
+        // reset form but keep defaults
+        setCustomerName(defaultName || "");
         setCustomerEmail(defaultEmail || "");
         setCustomerAddress("");
         setNote("");
@@ -110,7 +123,10 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
                 className="navBtn accent"
                 disabled={!canCheckout}
                 onClick={() => setStep("checkout")}
-                style={{ opacity: canCheckout ? 1 : 0.5, cursor: canCheckout ? "pointer" : "not-allowed" }}
+                style={{
+                  opacity: canCheckout ? 1 : 0.5,
+                  cursor: canCheckout ? "pointer" : "not-allowed",
+                }}
               >
                 Към поръчка →
               </button>
@@ -119,19 +135,34 @@ export default function CartDrawer({ open, onClose, defaultEmail }) {
         ) : (
           <form className="form" onSubmit={submitOrder}>
             <label>Име</label>
-            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+            <input
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              placeholder="Вашето име"
+            />
 
             <label>Имейл</label>
-            <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
+            <input
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              placeholder="example@email.com"
+            />
 
             <label>Адрес</label>
-            <input value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} />
+            <input
+              value={customerAddress}
+              onChange={(e) => setCustomerAddress(e.target.value)}
+            />
 
             <label>Бележка</label>
             <textarea value={note} onChange={(e) => setNote(e.target.value)} />
 
             <div className="drawerFooter row">
-              <button type="button" className="navBtn" onClick={() => setStep("cart")}>
+              <button
+                type="button"
+                className="navBtn"
+                onClick={() => setStep("cart")}
+              >
                 ← Назад
               </button>
               <button type="submit" className="navBtn accent">

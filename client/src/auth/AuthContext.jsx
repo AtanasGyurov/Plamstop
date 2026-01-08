@@ -12,11 +12,11 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Синхронизация на потребителя с бекенда (връща role, name, email)
+  // 🔥 Синхронизация на потребителя с бекенда (връща role, name, email, firstName, lastName)
   async function fetchUserProfile() {
     try {
       const res = await api.post("/auth/sync");
-      return res.data; // { email, role, name }
+      return res.data; // { email, role, name, firstName, lastName }
     } catch (err) {
       console.error("Неуспешна синхронизация на потребителя:", err);
       return null;
@@ -36,7 +36,6 @@ export function AuthProvider({ children }) {
         } catch (e) {
           // ignore
         }
-        // also clear any leftover token
         localStorage.removeItem("token");
       }
 
@@ -60,10 +59,17 @@ export function AuthProvider({ children }) {
         // 🔥 Взимаме роля и профил от бекенда
         const profile = await fetchUserProfile();
 
+        const firstName = profile?.firstName || "";
+        const lastName = profile?.lastName || "";
+        const fullName =
+          profile?.name || [firstName, lastName].filter(Boolean).join(" ").trim();
+
         setUser({
           email: firebaseUser.email,
           uid: firebaseUser.uid,
-          name: profile?.name || "",
+          name: fullName || "",
+          firstName,
+          lastName,
         });
 
         setRole(profile?.role || "client");

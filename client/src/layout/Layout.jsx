@@ -1,3 +1,4 @@
+// client/src/layout/Layout.jsx
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
@@ -9,6 +10,11 @@ import CartDrawer from "../cart/CartDrawer";
 export default function Layout() {
   const { user } = useAuth();
   const [cartOpen, setCartOpen] = useState(false);
+
+  const defaultName =
+    user?.name ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+    "";
 
   return (
     <div className="page">
@@ -25,6 +31,7 @@ export default function Layout() {
         open={cartOpen}
         onClose={() => setCartOpen(false)}
         defaultEmail={user?.email || ""}
+        defaultName={defaultName}
       />
     </div>
   );
