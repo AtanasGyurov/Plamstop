@@ -51,7 +51,7 @@ export default function AdminProducts() {
         <thead>
           <tr>
             <th>Име</th>
-            <th>Цена (лв)</th>
+            <th>Цена (евро)</th>
             <th>ID</th>
             <th>Редакция</th>
             <th>Изтриване</th>

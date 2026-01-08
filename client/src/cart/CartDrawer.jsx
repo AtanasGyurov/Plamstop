@@ -1,4 +1,3 @@
-// client/src/cart/CartDrawer.jsx
 import { useEffect, useMemo, useState } from "react";
 import api from "../api";
 import Cart from "../components/Cart";
@@ -17,6 +16,9 @@ export default function CartDrawer({ open, onClose, defaultEmail, defaultName })
   const [note, setNote] = useState("");
 
   const canCheckout = useMemo(() => items.length > 0, [items]);
+
+  const fmt = (n) => Number(n || 0).toFixed(2);
+  const round2 = (n) => Math.round((Number(n || 0) + Number.EPSILON) * 100) / 100;
 
   // ✅ keep email synced, BUT don't overwrite if user already typed something
   useEffect(() => {
@@ -61,11 +63,11 @@ export default function CartDrawer({ open, onClose, defaultEmail, defaultName })
       items: items.map((item) => ({
         id: item.id,
         name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        total: Number(item.price) * Number(item.quantity),
+        price: round2(item.price),
+        quantity: Number(item.quantity),
+        total: round2(Number(item.price) * Number(item.quantity)),
       })),
-      totalAmount,
+      totalAmount: round2(totalAmount),
       createdAt: new Date().toISOString(),
     };
 
@@ -115,7 +117,7 @@ export default function CartDrawer({ open, onClose, defaultEmail, defaultName })
             <div className="drawerFooter">
               <div className="totalRow">
                 <span>Общо:</span>
-                <strong>{Number(totalAmount).toFixed(2)} лв</strong>
+                <strong>{fmt(totalAmount)} евро</strong>
               </div>
 
               <button

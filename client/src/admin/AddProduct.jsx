@@ -56,7 +56,7 @@ export default function AddProduct() {
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <label>Цена (лв): </label>
+          <label>Цена (евро): </label>
           <input
             name="price"
             type="number"

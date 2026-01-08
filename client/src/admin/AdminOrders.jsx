@@ -147,14 +147,14 @@ export default function AdminOrders() {
           <strong>ID:</strong> {o.id} <br />
           <strong>Име:</strong> {o.customerName} <br />
           <strong>Имейл:</strong> {o.customerEmail} <br />
-          <strong>Общо:</strong> {o.totalAmount} лв <br />
+          <strong>Общо:</strong> {o.totalAmount} евро <br />
           <strong>Статус:</strong> {statusLabel(o.status)} <br />
 
           <strong>Артикули:</strong>
           <ul>
             {o.items?.map((i) => (
               <li key={i.id}>
-                {i.name} — {i.quantity} × {i.price} лв
+                {i.name} — {i.quantity} × {i.price} евро
               </li>
             ))}
           </ul>

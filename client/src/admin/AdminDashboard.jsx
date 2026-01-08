@@ -122,7 +122,7 @@ export default function AdminDashboard() {
             <StatCard title="Отказани" value={stats.cancelled} note="cancelled" />
             <StatCard
               title="Приход (завършени)"
-              value={`${stats.revenueCompleted.toFixed(2)} лв`}
+              value={`${stats.revenueCompleted.toFixed(2)} евро`}
               note="само completed"
             />
           </div>
@@ -198,7 +198,7 @@ export default function AdminDashboard() {
                       </span>
 
                       <div style={{ fontWeight: 900 }}>
-                        {(Number(o.totalAmount) || 0).toFixed(2)} лв
+                        {(Number(o.totalAmount) || 0).toFixed(2)} евро
                       </div>
 
                       <Link className="navBtn" to="/admin/orders">

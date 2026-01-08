@@ -50,7 +50,7 @@ export default function ProductList({ products = [], onAddToCart }) {
                   {p.name}
                 </div>
                 <div style={{ fontWeight: 800 }}>
-                  {Number(p.price || 0).toFixed(2)} лв
+                  {Number(p.price || 0).toFixed(2)} евро
                 </div>
               </div>
 
@@ -169,7 +169,7 @@ export default function ProductList({ products = [], onAddToCart }) {
 
             <div style={{ padding: 16, display: "grid", gap: 10 }}>
               <div style={{ opacity: 0.9 }}>
-                <strong>Цена:</strong> {Number(openProduct.price || 0).toFixed(2)} лв
+                <strong>Цена:</strong> {Number(openProduct.price || 0).toFixed(2)} евро
               </div>
 
               {openProduct.category && (

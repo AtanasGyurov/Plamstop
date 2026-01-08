@@ -34,7 +34,7 @@ export default function MyOrders() {
         <div key={o.id} style={{ border: "1px solid #555", padding: 10 }}>
           <strong>ID:</strong> {o.id} <br />
           <strong>Статус:</strong> {o.status} <br />
-          <strong>Обща сума:</strong> {o.totalAmount} лв
+          <strong>Обща сума:</strong> {Number(o.totalAmount || 0).toFixed(2)} евро
         </div>
       ))}
     </div>
