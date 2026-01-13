@@ -12,7 +12,11 @@ export default function Navbar({ onOpenCart }) {
         <div className="left">
           <div className="brand">
             <span className="brandName">Plamstop</span>
-            <span className="brandEmoji">🔥</span>
+            <img
+              className="brandLogo"
+              src="/images/logo.png"
+              alt="Plamstop logo"
+            />
           </div>
 
           <nav className="navLinks">

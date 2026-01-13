@@ -1,12 +1,28 @@
+// client/src/components/ProductList.jsx
 import { useMemo, useState } from "react";
 
-export default function ProductList({ products = [], onAddToCart }) {
+export default function ProductList({
+  products = [],
+  onAddToCart,
+  categoryLabelMap = {},
+}) {
   const [openId, setOpenId] = useState(null);
 
   const openProduct = useMemo(
     () => products.find((p) => p.id === openId) || null,
     [openId, products]
   );
+
+  function prettyCategory(raw) {
+    const key = (raw || "").toString().trim();
+    return categoryLabelMap[key] || key || "";
+  }
+
+  // ✅ Always return a safe image URL (fallback to logo)
+  function getImg(p) {
+    const u = (p?.imageUrl || "").toString().trim();
+    return u || "/images/logo.png";
+  }
 
   return (
     <section style={{ marginTop: 18, width: "100%" }}>
@@ -35,17 +51,47 @@ export default function ProductList({ products = [], onAddToCart }) {
               minHeight: 240,
             }}
           >
+            {/* ✅ Card image (fixed height + contain so logos don't explode) */}
             <div
               style={{
-                height: 120,
-                background:
-                  "linear-gradient(135deg, rgba(255,122,24,0.25), rgba(211,47,47,0.25))",
+                height: 120, // ✅ smaller so logo can't become huge
                 borderBottom: "1px solid rgba(255,255,255,0.10)",
+                background: "rgba(0,0,0,0.35)",
+                display: "grid",
+                placeItems: "center",
+                overflow: "hidden",
               }}
-            />
+            >
+              <img
+                src={getImg(p)}
+                alt={p.name}
+                style={{
+                  maxWidth: "90%",
+                  maxHeight: "90%",
+                  objectFit: "contain", // ✅ IMPORTANT
+                  opacity: 0.95,
+                }}
+                onError={(e) => {
+                  e.currentTarget.src = "/images/logo.png";
+                }}
+              />
+            </div>
 
-            <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+            <div
+              style={{
+                padding: 14,
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 10,
+                }}
+              >
                 <div style={{ fontWeight: 800, fontSize: 16, lineHeight: 1.2 }}>
                   {p.name}
                 </div>
@@ -54,7 +100,14 @@ export default function ProductList({ products = [], onAddToCart }) {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", opacity: 0.9 }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  opacity: 0.9,
+                }}
+              >
                 {p.category && (
                   <span
                     style={{
@@ -65,15 +118,11 @@ export default function ProductList({ products = [], onAddToCart }) {
                       background: "rgba(255,122,24,0.12)",
                     }}
                   >
-                    {p.category}
+                    {prettyCategory(p.category)}
                   </span>
                 )}
 
-                {"stock" in p && (
-                  <span style={{ fontSize: 12, opacity: 0.85 }}>
-                    наличност: <strong>{p.stock}</strong>
-                  </span>
-                )}
+                {/* ✅ REMOVED STOCK from UI (you asked to hide it) */}
               </div>
 
               <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
@@ -116,6 +165,7 @@ export default function ProductList({ products = [], onAddToCart }) {
         ))}
       </div>
 
+      {/* ✅ MODAL */}
       {openProduct && (
         <div
           onClick={() => setOpenId(null)}
@@ -132,14 +182,18 @@ export default function ProductList({ products = [], onAddToCart }) {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              width: "min(860px, 100%)",
+              width: "min(920px, 100%)",
+              maxHeight: "85vh",
               borderRadius: 16,
               overflow: "hidden",
               border: "1px solid rgba(255,255,255,0.16)",
               background: "rgba(10,12,18,0.92)",
               boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+              display: "grid",
+              gridTemplateRows: "auto auto 1fr",
             }}
           >
+            {/* header */}
             <div
               style={{
                 padding: 14,
@@ -149,7 +203,9 @@ export default function ProductList({ products = [], onAddToCart }) {
                 borderBottom: "1px solid rgba(255,255,255,0.10)",
               }}
             >
-              <div style={{ fontWeight: 900, fontSize: 18 }}>{openProduct.name}</div>
+              <div style={{ fontWeight: 900, fontSize: 18 }}>
+                {openProduct.name}
+              </div>
               <button
                 type="button"
                 onClick={() => setOpenId(null)}
@@ -167,31 +223,70 @@ export default function ProductList({ products = [], onAddToCart }) {
               </button>
             </div>
 
-            <div style={{ padding: 16, display: "grid", gap: 10 }}>
+            {/* ✅ Modal image (contain + controlled height so it never breaks) */}
+            <div
+              style={{
+                height: 220, // ✅ reduced so it doesn't dominate
+                background: "rgba(0,0,0,0.35)",
+                borderBottom: "1px solid rgba(255,255,255,0.10)",
+                display: "grid",
+                placeItems: "center",
+                padding: 12,
+              }}
+            >
+              <img
+                src={getImg(openProduct)}
+                alt={openProduct.name}
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  objectFit: "contain",
+                  borderRadius: 12,
+                }}
+                onError={(e) => {
+                  e.currentTarget.src = "/images/logo.png";
+                }}
+              />
+            </div>
+
+            {/* details (scrollable) */}
+            <div
+              style={{
+                padding: 16,
+                display: "grid",
+                gap: 10,
+                overflow: "auto",
+              }}
+            >
               <div style={{ opacity: 0.9 }}>
-                <strong>Цена:</strong> {Number(openProduct.price || 0).toFixed(2)} евро
+                <strong>Цена:</strong>{" "}
+                {Number(openProduct.price || 0).toFixed(2)} евро
               </div>
 
               {openProduct.category && (
                 <div style={{ opacity: 0.9 }}>
-                  <strong>Категория:</strong> {openProduct.category}
+                  <strong>Категория:</strong>{" "}
+                  {prettyCategory(openProduct.category)}
                 </div>
               )}
 
-              {"stock" in openProduct && (
-                <div style={{ opacity: 0.9 }}>
-                  <strong>Наличност:</strong> {openProduct.stock}
+              <div style={{ opacity: 0.9, lineHeight: 1.5 }}>
+                <strong>Описание:</strong>
+                <div style={{ marginTop: 6 }}>
+                  {openProduct.description?.toString().trim()
+                    ? openProduct.description
+                    : "Няма описание."}
                 </div>
-              )}
+              </div>
 
-              {openProduct.description && (
-                <div style={{ opacity: 0.9, lineHeight: 1.5 }}>
-                  <strong>Описание:</strong>
-                  <div style={{ marginTop: 6 }}>{openProduct.description}</div>
-                </div>
-              )}
-
-              <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  marginTop: 6,
+                  flexWrap: "wrap",
+                }}
+              >
                 <button
                   type="button"
                   onClick={() => onAddToCart?.(openProduct)}

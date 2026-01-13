@@ -1,82 +1,128 @@
+// client/src/admin/EditProduct.jsx
 import { useEffect, useState } from "react";
-import api from "../api";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../api";
 
 export default function EditProduct() {
   const { id } = useParams();
   const nav = useNavigate();
 
-  const [product, setProduct] = useState(null);
-  const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState("");
+  const [stock, setStock] = useState(0);
 
-  // Зареждане на продукта
+  // ✅ NEW
+  const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+
   useEffect(() => {
-    async function load() {
+    (async () => {
       try {
         const res = await api.get(`/products/${id}`);
-        setProduct(res.data);
-      } catch (err) {
-        console.error(err);
-        setError("Неуспешно зареждане на продукта.");
+        const p = res.data || {};
+        setName(p.name || "");
+        setPrice(p.price ?? "");
+        setCategory(p.category || "");
+        setStock(p.stock ?? 0);
+
+        // ✅ NEW
+        setDescription(p.description || "");
+        setImageUrl(p.imageUrl || "");
+      } catch (e) {
+        console.error(e);
+        setErr("Неуспешно зареждане на продукта.");
+      } finally {
+        setLoading(false);
       }
-    }
-    load();
+    })();
   }, [id]);
 
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!product) return <p>Зареждане...</p>;
+  async function onSubmit(e) {
+    e.preventDefault();
+    setErr("");
+    setSaving(true);
 
-  function handleChange(e) {
-    setProduct({ ...product, [e.target.name]: e.target.value });
-  }
-
-  async function save() {
     try {
-      await api.patch(`/products/${id}`, product);
+      const payload = {
+        name: name.trim(),
+        price: Number(price),
+        category: category.trim(),
+        stock: Number(stock),
+
+        // ✅ NEW
+        description: description.trim(),
+        imageUrl: imageUrl.trim(),
+      };
+
+      await api.put(`/products/${id}`, payload);
       nav("/admin/products");
-    } catch (err) {
-      console.error(err);
-      alert("Неуспешно запазване на продукта.");
+    } catch (e2) {
+      console.error(e2);
+      setErr("Грешка при запис.");
+    } finally {
+      setSaving(false);
     }
   }
 
-  async function remove() {
-    if (!window.confirm("Да изтрием ли този продукт?")) return;
-
-    try {
-      await api.delete(`/products/${id}`);
-      nav("/admin/products");
-    } catch (err) {
-      console.error(err);
-      alert("Неуспешно изтриване на продукта.");
-    }
-  }
+  if (loading) return <p className="muted">Зареждане…</p>;
 
   return (
-    <div>
+    <div className="container">
       <h1>Редакция на продукт</h1>
+      {err && <p style={{ color: "salmon" }}>{err}</p>}
 
-      {Object.keys(product).map((key) =>
-        key !== "id" ? (
-          <div key={key} style={{ marginBottom: "10px" }}>
-            <label>{key}: </label>
-            <input
-              name={key}
-              value={product[key]}
-              onChange={handleChange}
-              style={{ padding: "5px", width: "250px" }}
-            />
-          </div>
-        ) : null
-      )}
+      <form onSubmit={onSubmit} style={{ maxWidth: 520 }}>
+        <label>Име</label>
+        <input value={name} onChange={(e) => setName(e.target.value)} />
 
-      <button onClick={save} style={{ marginRight: "10px" }}>
-        Запази
-      </button>
+        <label>Цена (евро)</label>
+        <input
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          type="number"
+          step="0.01"
+        />
 
-      <button onClick={remove} style={{ color: "red" }}>
-        Изтрий
-      </button>
+        <label>Категория</label>
+        <input value={category} onChange={(e) => setCategory(e.target.value)} />
+
+        <label>Наличност</label>
+        <input
+          value={stock}
+          onChange={(e) => setStock(e.target.value)}
+          type="number"
+          min="0"
+        />
+
+        {/* ✅ NEW */}
+        <label>Описание</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={4}
+        />
+
+        <label>Снимка (URL/път)</label>
+        <input
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="/images/products/..."
+        />
+
+        <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+          <button type="submit" disabled={saving}>
+            {saving ? "Запис…" : "Запази"}
+          </button>
+          <button type="button" onClick={() => nav("/admin/products")}>
+            Отказ
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
