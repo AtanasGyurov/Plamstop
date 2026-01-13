@@ -9,6 +9,7 @@ export default function CartDrawer({ open, onClose, defaultEmail, defaultName })
   const [step, setStep] = useState("cart"); // "cart" | "checkout"
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
+  const [payLoading, setPayLoading] = useState(false);
 
   const [customerName, setCustomerName] = useState(defaultName || "");
   const [customerEmail, setCustomerEmail] = useState(defaultEmail || "");
@@ -20,12 +21,12 @@ export default function CartDrawer({ open, onClose, defaultEmail, defaultName })
   const fmt = (n) => Number(n || 0).toFixed(2);
   const round2 = (n) => Math.round((Number(n || 0) + Number.EPSILON) * 100) / 100;
 
-  // ✅ keep email synced, BUT don't overwrite if user already typed something
+  // keep email synced, but don't overwrite typed value
   useEffect(() => {
     setCustomerEmail((prev) => (prev?.trim() ? prev : defaultEmail || ""));
   }, [defaultEmail]);
 
-  // ✅ keep name synced, BUT don't overwrite if user already typed something
+  // keep name synced, but don't overwrite typed value
   useEffect(() => {
     setCustomerName((prev) => (prev?.trim() ? prev : defaultName || ""));
   }, [defaultName]);
@@ -36,14 +37,63 @@ export default function CartDrawer({ open, onClose, defaultEmail, defaultName })
       setError("");
       setMsg("");
       setStep("cart");
+      setPayLoading(false);
 
-      // ✅ if fields are empty when opening, prefill them
       setCustomerEmail((prev) => (prev?.trim() ? prev : defaultEmail || ""));
       setCustomerName((prev) => (prev?.trim() ? prev : defaultName || ""));
     }
   }, [open, defaultEmail, defaultName]);
 
   if (!open) return null;
+
+  function validateCheckoutFields() {
+    if (items.length === 0) return "Количката е празна.";
+    if (!customerName?.trim() || !customerEmail?.trim()) return "Името и имейлът са задължителни.";
+    if (!customerAddress?.trim()) return "Адресът е задължителен за плащане.";
+    return "";
+  }
+
+  async function startStripePayment() {
+    setError("");
+    setMsg("");
+
+    const v = validateCheckoutFields();
+    if (v) return setError(v);
+
+    try {
+      setPayLoading(true);
+
+      const payload = {
+        customer: {
+          name: customerName.trim(),
+          email: customerEmail.trim(),
+          address: customerAddress.trim(),
+          note: note?.trim() || "",
+        },
+        items: items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: round2(item.price),
+          quantity: Number(item.quantity),
+        })),
+        totalAmount: round2(totalAmount),
+      };
+
+      // ✅ IMPORTANT: POST, not GET
+      const res = await api.post("/stripe/create-checkout-session", payload);
+      
+      const url = res.data?.url;
+      if (!url) throw new Error("Missing session url");
+
+      // ✅ Redirect to Stripe Checkout (test mode)
+      window.location.href = url;
+    } catch (err) {
+      console.error(err);
+      setError("Грешка при стартиране на Stripe плащане.");
+    } finally {
+      setPayLoading(false);
+    }
+  }
 
   async function submitOrder(e) {
     e.preventDefault();
@@ -77,7 +127,6 @@ export default function CartDrawer({ open, onClose, defaultEmail, defaultName })
         setMsg("Поръчката е създадена успешно. № " + res.data.id);
         clearCart();
 
-        // reset form but keep defaults
         setCustomerName(defaultName || "");
         setCustomerEmail(defaultEmail || "");
         setCustomerAddress("");
@@ -154,17 +203,34 @@ export default function CartDrawer({ open, onClose, defaultEmail, defaultName })
             <input
               value={customerAddress}
               onChange={(e) => setCustomerAddress(e.target.value)}
+              placeholder="ул., номер, град"
             />
 
             <label>Бележка</label>
             <textarea value={note} onChange={(e) => setNote(e.target.value)} />
 
+            {/* ✅ Stripe button AFTER address step */}
+            <button
+              type="button"
+              className="navBtn"
+              onClick={startStripePayment}
+              disabled={payLoading}
+              style={{
+                marginTop: 10,
+                opacity: payLoading ? 0.6 : 1,
+                cursor: payLoading ? "not-allowed" : "pointer",
+              }}
+            >
+              {payLoading ? "Отварям Stripe..." : "Плати с карта (Stripe test)"}
+            </button>
+
+            <div className="muted" style={{ marginTop: 10, fontSize: 12, lineHeight: 1.5 }}>
+              * Stripe е в тестов режим (примерна покупка). Използвай карта 4242 4242 4242 4242,
+              произволна бъдеща дата и CVC.
+            </div>
+
             <div className="drawerFooter row">
-              <button
-                type="button"
-                className="navBtn"
-                onClick={() => setStep("cart")}
-              >
+              <button type="button" className="navBtn" onClick={() => setStep("cart")}>
                 ← Назад
               </button>
               <button type="submit" className="navBtn accent">

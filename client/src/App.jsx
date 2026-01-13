@@ -21,6 +21,9 @@ import AddProduct from "./admin/AddProduct";
 import EditProduct from "./admin/EditProduct";
 import AdminOrders from "./admin/AdminOrders";
 
+import CheckoutSuccess from "./pages/CheckoutSuccess";
+import CheckoutCancel from "./pages/CheckoutCancel";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -42,6 +45,8 @@ export default function App() {
               <Route path="/auth/*" element={<AuthPage />} />
               <Route path="/my-orders" element={<MyOrders />} />
             </Route>
+              <Route path="/checkout/success" element={<CheckoutSuccess />} />
+              <Route path="/checkout/cancel" element={<CheckoutCancel />} />
 
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
