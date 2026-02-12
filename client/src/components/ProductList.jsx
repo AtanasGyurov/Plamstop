@@ -51,10 +51,10 @@ export default function ProductList({
               minHeight: 240,
             }}
           >
-            {/* ✅ Card image (fixed height + contain so logos don't explode) */}
+            {/* ✅ Card image */}
             <div
               style={{
-                height: 120, // ✅ smaller so logo can't become huge
+                height: 120,
                 borderBottom: "1px solid rgba(255,255,255,0.10)",
                 background: "rgba(0,0,0,0.35)",
                 display: "grid",
@@ -68,7 +68,7 @@ export default function ProductList({
                 style={{
                   maxWidth: "90%",
                   maxHeight: "90%",
-                  objectFit: "contain", // ✅ IMPORTANT
+                  objectFit: "contain",
                   opacity: 0.95,
                 }}
                 onError={(e) => {
@@ -100,15 +100,8 @@ export default function ProductList({
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  flexWrap: "wrap",
-                  opacity: 0.9,
-                }}
-              >
-                {p.category && (
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", opacity: 0.9 }}>
+                {!!p.category && (
                   <span
                     style={{
                       fontSize: 12,
@@ -121,8 +114,6 @@ export default function ProductList({
                     {prettyCategory(p.category)}
                   </span>
                 )}
-
-                {/* ✅ REMOVED STOCK from UI (you asked to hide it) */}
               </div>
 
               <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
@@ -193,7 +184,6 @@ export default function ProductList({
               gridTemplateRows: "auto auto 1fr",
             }}
           >
-            {/* header */}
             <div
               style={{
                 padding: 14,
@@ -203,9 +193,7 @@ export default function ProductList({
                 borderBottom: "1px solid rgba(255,255,255,0.10)",
               }}
             >
-              <div style={{ fontWeight: 900, fontSize: 18 }}>
-                {openProduct.name}
-              </div>
+              <div style={{ fontWeight: 900, fontSize: 18 }}>{openProduct.name}</div>
               <button
                 type="button"
                 onClick={() => setOpenId(null)}
@@ -223,10 +211,9 @@ export default function ProductList({
               </button>
             </div>
 
-            {/* ✅ Modal image (contain + controlled height so it never breaks) */}
             <div
               style={{
-                height: 220, // ✅ reduced so it doesn't dominate
+                height: 220,
                 background: "rgba(0,0,0,0.35)",
                 borderBottom: "1px solid rgba(255,255,255,0.10)",
                 display: "grid",
@@ -249,24 +236,14 @@ export default function ProductList({
               />
             </div>
 
-            {/* details (scrollable) */}
-            <div
-              style={{
-                padding: 16,
-                display: "grid",
-                gap: 10,
-                overflow: "auto",
-              }}
-            >
+            <div style={{ padding: 16, display: "grid", gap: 10, overflow: "auto" }}>
               <div style={{ opacity: 0.9 }}>
-                <strong>Цена:</strong>{" "}
-                {Number(openProduct.price || 0).toFixed(2)} евро
+                <strong>Цена:</strong> {Number(openProduct.price || 0).toFixed(2)} евро
               </div>
 
               {openProduct.category && (
                 <div style={{ opacity: 0.9 }}>
-                  <strong>Категория:</strong>{" "}
-                  {prettyCategory(openProduct.category)}
+                  <strong>Категория:</strong> {prettyCategory(openProduct.category)}
                 </div>
               )}
 
@@ -279,14 +256,7 @@ export default function ProductList({
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  marginTop: 6,
-                  flexWrap: "wrap",
-                }}
-              >
+              <div style={{ display: "flex", gap: 10, marginTop: 6, flexWrap: "wrap" }}>
                 <button
                   type="button"
                   onClick={() => onAddToCart?.(openProduct)}

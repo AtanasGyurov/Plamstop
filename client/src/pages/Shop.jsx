@@ -30,6 +30,30 @@ function Shop() {
     []
   );
 
+  // ✅ Build a label map so ProductList shows Bulgarian labels instead of raw keys
+  // Also includes aliases for older/incorrect stored values (like "firesafety")
+  const categoryLabelMap = useMemo(() => {
+    const map = {};
+
+    // keys -> labels from your categories list
+    for (const c of categories) {
+      map[c.key] = c.label;
+      map[c.label] = c.label; // if DB already stores label, keep it as-is
+    }
+
+    // ✅ aliases (add more here if you have older values in DB)
+    map["firesafety"] = "Преносими пожарогасители"; // your old value -> pick best match
+    map["firealarm"] = "Пожароизвестяване";
+    map["alarm_panels"] = "Алармени панели и сирени";
+    map["emergencyLighting"] = "Аварийно осветление";
+    map["hydrants"] = "Хидранти и маркучи";
+    map["evacuationSigns"] = "Евакуационни табели";
+    map["inspection"] = "Инструменти за инспекция";
+    map["evacuationPlans"] = "Евакуационни планове";
+
+    return map;
+  }, [categories]);
+
   useEffect(() => {
     async function load() {
       try {
@@ -45,20 +69,21 @@ function Shop() {
     load();
   }, []);
 
-  // ✅ Filter products by category
+  // ✅ Filter products by category (supports: key OR label OR aliases via categoryLabelMap)
   const filteredProducts = useMemo(() => {
     if (selectedCat === "all") return products;
 
     const selected = categories.find((c) => c.key === selectedCat);
-    const label = selected?.label || "";
+    const selectedLabel = selected?.label || "";
 
-    // If you also have older stored categories (e.g. "firesafety"),
-    // you can add aliases here if needed later.
     return products.filter((p) => {
-      const cat = (p.category || "").toString().trim();
-      return cat === label || cat === selectedCat; // supports label or key
+      const raw = (p.category || "").toString().trim();
+      const pretty = categoryLabelMap[raw] || raw; // normalize old values
+
+      // match if DB stored: key, label, or alias -> label
+      return raw === selectedCat || raw === selectedLabel || pretty === selectedLabel;
     });
-  }, [products, selectedCat, categories]);
+  }, [products, selectedCat, categories, categoryLabelMap]);
 
   return (
     <div className="container">
@@ -95,16 +120,13 @@ function Shop() {
                 padding: 0,
                 cursor: "pointer",
                 border: isActive
-                  ? "1px solid rgba(255,122,24,0.7)" // ✅ optional glow border
+                  ? "1px solid rgba(255,122,24,0.7)"
                   : "1px solid rgba(255,255,255,0.12)",
                 background: "rgba(255,255,255,0.06)",
-                boxShadow: isActive
-                  ? "0 0 0 2px rgba(255,122,24,0.25)" // ✅ optional glow ring
-                  : "none",
+                boxShadow: isActive ? "0 0 0 2px rgba(255,122,24,0.25)" : "none",
               }}
               className={isActive ? "activeCategory" : ""}
             >
-              {/* image */}
               <div
                 style={{
                   height: 86,
@@ -115,13 +137,12 @@ function Shop() {
                 }}
               />
 
-              {/* ✅ fixed text color + removed "Избрана категория" */}
               <div style={{ padding: 12 }}>
                 <div
                   style={{
                     fontWeight: 900,
-                    color: "rgba(255,255,255,0.95)", // ✅ visible on dark
-                    textShadow: "0 1px 4px rgba(0,0,0,0.6)", // ✅ readability on image
+                    color: "rgba(255,255,255,0.95)",
+                    textShadow: "0 1px 4px rgba(0,0,0,0.6)",
                     lineHeight: 1.2,
                   }}
                 >
@@ -136,8 +157,12 @@ function Shop() {
       {loading && <p>Зареждане на продукти…</p>}
       {error && <p className="textError">{error}</p>}
 
-      {/* ✅ products filtered */}
-      <ProductList products={filteredProducts} onAddToCart={addToCart} />
+      {/* ✅ products filtered + ✅ pass categoryLabelMap so tags show Bulgarian */}
+      <ProductList
+        products={filteredProducts}
+        onAddToCart={addToCart}
+        categoryLabelMap={categoryLabelMap}
+      />
     </div>
   );
 }
