@@ -24,7 +24,7 @@ router.post("/create-checkout-session", async (req, res) => {
       price_data: {
         currency: "eur",
         product_data: { name: String(i.name || "Product") },
-        unit_amount: Math.round(Number(i.price || 0) * 100),
+        unit_amount: Math.round(Number(i.price || 0) * 100), // EUR -> cents
       },
     }));
 
@@ -34,8 +34,10 @@ router.post("/create-checkout-session", async (req, res) => {
       mode: "payment",
       line_items,
       customer_email: customer?.email,
-      success_url: `${clientUrl}/shop?payment=success`,
-      cancel_url: `${clientUrl}/shop?payment=cancel`,
+
+      // ✅ IMPORTANT: go to your real pages
+      success_url: `${clientUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${clientUrl}/checkout/cancel`,
     });
 
     return res.json({ url: session.url });

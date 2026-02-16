@@ -30,24 +30,24 @@ export default function App() {
       <CartProvider>
         <BrowserRouter>
           <Routes>
+            {/* ✅ SITE (with Navbar/Footer) */}
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/shop" element={<Shop />} />
-
-              {/* ✅ FIX: /contacts route exists */}
               <Route path="/contacts" element={<Contacts />} />
-
-              {/* ✅ NEW pages */}
               <Route path="/certificates" element={<Certificates />} />
               <Route path="/partners" element={<Partners />} />
 
               <Route path="/auth/*" element={<AuthPage />} />
               <Route path="/my-orders" element={<MyOrders />} />
-            </Route>
+
+              {/* ✅ Stripe result pages (NOW inside Layout) */}
               <Route path="/checkout/success" element={<CheckoutSuccess />} />
               <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+            </Route>
 
+            {/* ✅ ADMIN */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />

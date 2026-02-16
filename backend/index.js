@@ -57,11 +57,6 @@ app.listen(PORT, () => {
   // ✅ Diagnostics (NO secret printing)
   console.log("🧭 process.cwd():", process.cwd());
   console.log("🧾 .env loaded from:", loadedFrom || "NONE FOUND");
-  console.log(
-    "🔎 .env candidates exist:",
-    candidates.map((p) => `${p}=${fs.existsSync(p) ? "YES" : "no"}`).join(" | ")
-  );
-
   console.log("📨 SMTP_HOST:", process.env.SMTP_HOST ? "loaded" : "MISSING");
   console.log("Stripe key loaded?", Boolean(process.env.STRIPE_SECRET_KEY));
   console.log("CLIENT_URL:", process.env.CLIENT_URL || "MISSING");
