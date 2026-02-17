@@ -43,6 +43,16 @@ export default function Navbar({ onOpenCart }) {
               Магазин
             </NavLink>
 
+            
+            <NavLink
+              to="/fire-safety"
+              className={({ isActive }) =>
+                `navBtn ${isActive ? "active accent" : ""}`
+              }
+            >
+              Пожарна безопасност
+            </NavLink>
+
             <NavLink
               to="/contacts"
               className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}

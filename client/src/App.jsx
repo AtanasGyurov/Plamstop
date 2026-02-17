@@ -10,6 +10,7 @@ import Shop from "./pages/Shop";
 import Contacts from "./pages/Contacts";
 import Certificates from "./pages/Certificates";
 import Partners from "./pages/Partners";
+import FireSafetyHub from "./pages/FireSafetyHub";
 
 import AuthPage from "./auth/AuthPage";
 import MyOrders from "./pages/MyOrders";
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/certificates" element={<Certificates />} />
               <Route path="/partners" element={<Partners />} />
+              <Route path="/fire-safety" element={<FireSafetyHub />} />
 
               <Route path="/auth/*" element={<AuthPage />} />
               <Route path="/my-orders" element={<MyOrders />} />

@@ -258,6 +258,7 @@ export default function About() {
             <Link to="/certificates" style={{ color: "rgba(255,255,255,0.92)" }}>
               Сертификати
             </Link>
+            <Link to="/fire-safety" style={btn}>Пожарна безопасност</Link>
             .
           </div>
         </div>
@@ -396,6 +397,7 @@ export default function About() {
         <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
           <Link to="/shop" style={btnAccent}>Към магазина</Link>
           <Link to="/contacts" style={btn}>Свържете се с нас</Link>
+          <Link to="/fire-safety" style={btn}>Пожарна безопасност</Link>
         </div>
       </div>
     </div>
