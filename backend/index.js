@@ -10,10 +10,6 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Try several common locations:
-// 1) backend/.env when you run from backend folder
-// 2) backend/.env even if you run from project root
-// 3) projectRoot/.env (optional)
 const candidates = [
   path.join(process.cwd(), ".env"),
   path.join(__dirname, ".env"),
@@ -32,7 +28,17 @@ for (const p of candidates) {
 
 // ---- app ----
 const app = express();
+
+// ✅ CORS (also handle OPTIONS preflight for ALL routes)
 app.use(cors());
+app.options("*", cors());
+
+// ✅ (temporary but very useful) log what the backend receives
+app.use((req, _res, next) => {
+  console.log("REQ:", req.method, req.url);
+  next();
+});
+
 app.use(express.json());
 
 // Import routes AFTER dotenv is loaded
@@ -49,12 +55,14 @@ app.use("/api/orders", ordersRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/stripe", stripeRoutes);
 
+// ✅ quick sanity route (optional) — helps verify server is the one you think
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
 const PORT = Number(process.env.PORT) || 5000;
 
 app.listen(PORT, () => {
   console.log(`🔥 Backend running at http://localhost:${PORT}`);
 
-  // ✅ Diagnostics (NO secret printing)
   console.log("🧭 process.cwd():", process.cwd());
   console.log("🧾 .env loaded from:", loadedFrom || "NONE FOUND");
   console.log("📨 SMTP_HOST:", process.env.SMTP_HOST ? "loaded" : "MISSING");

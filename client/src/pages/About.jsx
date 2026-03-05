@@ -47,15 +47,23 @@ export default function About() {
     lineHeight: 1.7,
   };
 
+  // ✅ text-link style (for inline links inside paragraphs)
+  const inlineLink = {
+    color: "rgba(255,255,255,0.92)",
+    textDecoration: "underline",
+    fontWeight: 800,
+    whiteSpace: "nowrap",
+  };
+
   // Images (place these later in client/public/images/about/)
   const IMAGES = {
-  hero: "/images/about/warehouse.jpg",        // hero background
-  team: "/images/about/team_picture.jpg",  // team photo
-  extinguishers: "/images/about/extinguishers.jpg",
-  alarm: "/images/about/alarm-panel.jpg",
-  exit: "/images/about/exit-sign.jpg",
-  tools: "/images/about/extinguishers.jpg",   // fallback until tools image exists
-};
+    hero: "/images/about/warehouse.jpg", // hero background
+    team: "/images/about/team_picture.jpg", // team photo
+    extinguishers: "/images/about/extinguishers.jpg",
+    alarm: "/images/about/alarm-panel.jpg",
+    exit: "/images/about/exit-sign.jpg",
+    tools: "/images/about/extinguishers.jpg", // fallback until tools image exists
+  };
 
   const values = [
     {
@@ -130,7 +138,6 @@ export default function About() {
           alt={alt}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
           onError={(e) => {
-            // fallback gradient if image missing
             e.currentTarget.style.display = "none";
             e.currentTarget.parentElement.style.background =
               "linear-gradient(135deg, rgba(255,122,24,0.18), rgba(211,47,47,0.14))";
@@ -153,7 +160,6 @@ export default function About() {
         }}
       >
         <div style={{ position: "relative" }}>
-          {/* background image */}
           <div style={{ height: 240, position: "relative" }}>
             <img
               src={IMAGES.hero}
@@ -198,7 +204,6 @@ export default function About() {
               <strong>домове, офиси, складове и индустриални обекти</strong>.
             </p>
 
-            {/* CTA */}
             <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
               <Link to="/shop" style={btnAccent}>Към магазина</Link>
               <Link to="/contacts" style={btn}>Контакти</Link>
@@ -223,9 +228,8 @@ export default function About() {
           <div style={sectionTitle}>Нашата мисия</div>
           <p style={{ ...muted, margin: 0 }}>
             Да направим избора на продукти за пожарна безопасност{" "}
-            <strong>по-лесен, по-ясен и по-надежден</strong>.
-            Поставяме акцент върху реалните нужди на обекта — тип риск, среда и
-            практична употреба.
+            <strong>по-лесен, по-ясен и по-надежден</strong>. Поставяме акцент върху
+            реалните нужди на обекта — тип риск, среда и практична употреба.
           </p>
 
           <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
@@ -253,13 +257,17 @@ export default function About() {
               </li>
             ))}
           </ul>
+
+          {/* ✅ FIXED: inline links only (no button inside sentence) */}
           <div style={{ marginTop: 12, ...muted }}>
             Ако търсите документи/декларации — вижте{" "}
-            <Link to="/certificates" style={{ color: "rgba(255,255,255,0.92)" }}>
-              Сертификати
-            </Link>
+            
+          </div>
+
+          {/* Optional: CTA buttons below (not inside the sentence) */}
+          <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <Link to="/certificates" style={btn}>Сертификати</Link>
             <Link to="/fire-safety" style={btn}>Пожарна безопасност</Link>
-            .
           </div>
         </div>
 

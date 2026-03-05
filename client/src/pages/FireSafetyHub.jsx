@@ -373,9 +373,7 @@ export default function FireSafetyHub() {
               <div style={{ marginTop: 10, fontWeight: 950 }}>{s.title}</div>
               <div style={{ ...muted, marginTop: 6 }}>{s.text}</div>
 
-              <div style={{ ...muted, marginTop: 10, fontSize: 12 }}>
-                * Път: <code style={{ color: "rgba(255,255,255,0.85)" }}>{s.img}</code>
-              </div>
+              
             </div>
           ))}
         </div>
