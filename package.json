@@ -1,5 +1,16 @@
 {
+  "name": "plamstop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm --prefix client run build"
+  },
   "dependencies": {
-    "nodemailer": "^7.0.12"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.0.0",
+    "nodemailer": "^7.0.12",
+    "stripe": "^18.0.0"
   }
 }
