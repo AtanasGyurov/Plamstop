@@ -3,42 +3,42 @@ export default function Partners() {
   const partners = [
     {
       name: "Березка",
-      logo: "/images/partners/berezka.jpg",
+      logo: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331056/berezka_orpdpp.jpg",
       desc: "Обект/партньор, за който могат да се доставят и поддържат решения за пожарна безопасност – обозначения, пожарогасители и базово оборудване.",
     },
     {
       name: "EVN",
-      logo: "/images/partners/evn.jpg",
+      logo: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331059/evn_jfvjgd.jpg",
       desc: "Енергийна компания с високи изисквания за безопасност в административни и технически обекти – сигнализация, евакуационни табели и аварийно осветление.",
     },
     {
       name: "Театър „Иван Вазов“",
-      logo: "/images/partners/ivan_vazov.jpg",
+      logo: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331065/ivan_vazov_wyjyh1.jpg",
       desc: "Обществена сграда с поток от посетители – важни са ясни евакуационни обозначения, планове, аварийно осветление и поддържано оборудване.",
     },
     {
       name: "KCM (КЦМ)",
-      logo: "/images/partners/kcm.jpg",
+      logo: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331068/kcm_nzdg1e.jpg",
       desc: "Индустриален партньор – решения за производствени и складови зони: пожарогасители, хидранти/маркучи, табели и планове според риска на обекта.",
     },
     {
       name: "Orion",
-      logo: "/images/partners/orion.jpg",
+      logo: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331071/orion_fggntk.png",
       desc: "Партньор/обект с нужда от систематизиран подход към безопасността – продуктови решения и консултация за избор спрямо среда и натоварване.",
     },
     {
-      name: "SMID",
-      logo: "/images/partners/simid.jpg",
+      name: "Симид",
+      logo: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331054/simid_fwrmdw.jpg",
       desc: "Строителен/инженерен партньор – интеграция на пожарна безопасност при проекти: планове, обозначения, аварийно осветление и системи.",
     },
     {
-      name: "Verdi Sign",
-      logo: "/images/partners/verdi_sign.jpg",
+      name: "Верди",
+      logo: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331051/verdi_sign_zs1blz.jpg",
       desc: "Марка/партньор за професионални табели и обозначения – евакуационни знаци, фотолуминесцентни решения и маркировки за обекти.",
     },
     {
       name: "Водстрой",
-      logo: "/images/partners/vodstroi.jpg",
+      logo: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331062/vodstroi_d0wzbi.jpg",
       desc: "Строителна/инфраструктурна компания – решения за безопасност на обекти и бази: пожарогасители, табели, аварийно осветление и планове.",
     },
   ];

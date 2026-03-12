@@ -17,15 +17,15 @@ function Shop() {
   // ✅ Categories (matches your images in /public/images/categories)
   const categories = useMemo(
     () => [
-      { key: "all", label: "Всички", image: "/images/categories/project-site.jpg" },
-      { key: "extinguishers", label: "Преносими пожарогасители", image: "/images/categories/extinguishers.jpg" },
-      { key: "fire-alarm", label: "Пожароизвестяване", image: "/images/categories/fire-alarm.jpg" },
-      { key: "alarm-panels", label: "Алармени панели и сирени", image: "/images/categories/alarm-panels.jpg" },
-      { key: "emergency-lighting", label: "Аварийно осветление", image: "/images/categories/emergency-lighting.jpg" },
-      { key: "hydrants-hoses", label: "Хидранти и маркучи", image: "/images/categories/hydrants-hoses.jpg" },
-      { key: "exit-signs", label: "Евакуационни табели", image: "/images/categories/exit-signs.jpg" },
-      { key: "inspection-tools", label: "Инструменти за инспекция", image: "/images/categories/inspection-tools.jpg" },
-      { key: "evacuation-plans", label: "Евакуационни планове", image: "/images/categories/evacuation-plans.jpg" },
+      { key: "all", label: "Всички", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330074/project-site_nydpjz.jpg" },
+      { key: "extinguishers", label: "Преносими пожарогасители", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329991/extinguishers_bzv8rz.jpg" },
+      { key: "fire-alarm", label: "Пожароизвестяване", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330062/fire-alarm_kvzaqv.jpg" },
+      { key: "alarm-panels", label: "Алармени панели и сирени", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330066/alarm-panels_yddlu4.jpg" },
+      { key: "emergency-lighting", label: "Аварийно осветление", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330069/emergency-lighting_cijsnj.jpg" },
+      { key: "hydrants-hoses", label: "Хидранти и маркучи", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330064/hydrants-hoses_ffe5or.jpg" },
+      { key: "exit-signs", label: "Евакуационни табели", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329989/exit-signs_tsmpct.jpg" },
+      { key: "inspection-tools", label: "Инструменти за инспекция", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330076/inspection-tools_yyx2xg.jpg" },
+      { key: "evacuation-plans", label: "Евакуационни планове", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330071/evacuation-plans_ez54zo.jpg" },
     ],
     []
   );
@@ -89,7 +89,7 @@ function Shop() {
     <div className="container">
       <h1 className="pageTitle">
         Plamstop{" "}
-        <img className="inlineLogo" src="/images/logo.png" alt="Plamstop logo" />
+        <img className="inlineLogo" src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png" alt="Plamstop logo" />
       </h1>
       <p className="muted">Магазин за пожарна безопасност</p>
 

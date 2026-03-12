@@ -14,7 +14,7 @@ export default function Navbar({ onOpenCart }) {
             <span className="brandName">Plamstop</span>
             <img
               className="brandLogo"
-              src="/images/logo.png"
+              src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png"
               alt="Plamstop logo"
             />
           </div>

@@ -57,12 +57,12 @@ export default function About() {
 
   // Images (place these later in client/public/images/about/)
   const IMAGES = {
-    hero: "/images/about/warehouse.jpg", // hero background
-    team: "/images/about/team_picture.jpg", // team photo
-    extinguishers: "/images/about/extinguishers.jpg",
-    alarm: "/images/about/alarm-panel.jpg",
-    exit: "/images/about/exit-sign.jpg",
-    tools: "/images/about/extinguishers.jpg", // fallback until tools image exists
+    hero: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329754/warehouse_bhrsyw.jpg", // hero background
+    team: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329752/team_picture_jian9z.jpg", // team photo
+    extinguishers: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329751/extinguishers_fcktzu.jpg",
+    alarm: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329756/alarm-panel_g9xkn1.png",
+    exit: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329758/exit-sign_mmmzv2.webp",
+    tools: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329751/extinguishers_fcktzu.jpg", // fallback until tools image exists
   };
 
   const values = [
@@ -187,7 +187,7 @@ export default function About() {
                 За <span style={{ color: "rgba(255,255,255,0.96)" }}>Plamstop</span>
               </h1>
               <img
-                src="/images/logo.png"
+                src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png"
                 alt="Plamstop logo"
                 style={{
                   width: 34,

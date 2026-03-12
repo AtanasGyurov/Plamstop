@@ -252,11 +252,11 @@ export default function EditProduct() {
             title="Преглед на снимката"
           >
             <img
-              src={(imageUrl || "").trim() || "/images/logo.png"}
+              src={(imageUrl || "").trim() || "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png"}
               alt="preview"
               style={{ maxWidth: "100%", maxHeight: 220, objectFit: "contain", opacity: 0.95 }}
               onError={(e) => {
-                e.currentTarget.src = "/images/logo.png";
+                e.currentTarget.src = "/https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
               }}
             />
           </div>

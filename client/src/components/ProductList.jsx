@@ -179,7 +179,7 @@ export default function ProductList({
     const guessed = guessByKeywords(n);
     if (guessed) return guessed;
 
-    return "/images/logo.png";
+    return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
   }
 
   // ✅ ONE consistent “square frame” everywhere (like your screenshot)
@@ -280,7 +280,7 @@ export default function ProductList({
                   style={thumbImgStyle}
                   loading="lazy"
                   onError={(e) => {
-                    e.currentTarget.src = "/images/logo.png";
+                    e.currentTarget.src = "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
                   }}
                 />
               </div>
@@ -418,7 +418,7 @@ export default function ProductList({
                   alt={openProduct.name}
                   style={modalImgStyle}
                   onError={(e) => {
-                    e.currentTarget.src = "/images/logo.png";
+                    e.currentTarget.src = "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
                   }}
                 />
               </div>

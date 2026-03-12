@@ -6,21 +6,21 @@ export default function Certificates() {
       title: "Удостоверение – КИИППБ",
       description:
         "Удостоверение за членство в Камарата на инженерите в инвестиционното проектиране по пожарна безопасност.",
-      image: "/images/certificates/c3501525.jpg",
+      image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330415/c3501522_lgyi22.jpg",
     },
     {
       id: 2,
       title: "Регистрационно удостоверение",
       description:
         "Регистрация и професионална квалификация в сферата на пожарната безопасност.",
-      image: "/images/certificates/c3501522.jpg",
+      image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330418/c3501523_al0q94.jpg",
     },
     {
       id: 3,
       title: "Разрешение за пожарогасителна дейност",
       description:
         "Разрешение от МВР – Главна дирекция „Пожарна безопасност и защита на населението“.",
-      image: "/images/certificates/c3501523.jpg",
+      image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330413/gasitelna_deinost_800px_travhh.jpg",
     },
   ];
 

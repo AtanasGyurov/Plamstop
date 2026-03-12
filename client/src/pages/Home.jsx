@@ -47,7 +47,7 @@ export default function Home() {
                 Plamstop{" "}
                 <img
                   className="inlineLogo"
-                  src="/images/logo.png"
+                  src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png"
                   alt="Лого на Plamstop"
                 />
               </h1>
@@ -100,7 +100,7 @@ export default function Home() {
             }}
           >
             <img
-              src="/images/team_picture.jpg"
+              src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331521/team_picture_gvcy90.jpg"
               alt="Екипът на Plamstop"
               style={{
                 width: "100%",

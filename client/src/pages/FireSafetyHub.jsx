@@ -49,22 +49,22 @@ export default function FireSafetyHub() {
 
   // Place files in: client/public/images/fire-safety/
   const IMAGES = {
-    hero: "/images/fire-safety/fire-hero.jpg",
+    hero: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330746/fire-hero_szloji.avif",
 
     // diagrams / visuals
-    evacuationPlan: "/images/fire-safety/evacuation-plan.jpg",
-    signage: "/images/fire-safety/exit-route.jpg",
-    pass: "/images/fire-safety/using-extinguisher.jpg",
+    evacuationPlan: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330756/evacuation-plan_aiypwz.avif",
+    signage: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330759/exit-route_lasgkg.webp",
+    pass: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330748/using-extinguisher_vvpmai.webp",
 
     // prevention / detection
-    smokeLow: "/images/fire-safety/smoke-detector.jpg",
+    smokeLow: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330753/smoke-detector_y3o0ii.webp",
 
     // equipment / readiness
-    electrical: "/images/fire-safety/fire-equipment.jpg",
-    kitchen: "/images/fire-safety/fire-equipment.jpg",
+    electrical: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330761/fire-equipment_halmby.webp",
+    kitchen: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330761/fire-equipment_halmby.webp",
 
     // assembly
-    assemblyPoint: "/images/fire-safety/assembly-point.jpg",
+    assemblyPoint: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330750/assembly-point_xhylxx.jpg",
   };
 
   function ExtLink({ href, children }) {
@@ -190,23 +190,23 @@ export default function FireSafetyHub() {
       fit: "contain", // ✅ do NOT crop plans
     },
     {
-      title: "Схема: PASS техника за пожарогасител",
+      title: "PASS техника за пожарогасител",
       text:
         "P—Pull (извади щифта), A—Aim (насочи в основата), S—Squeeze (натисни), S—Sweep (мети встрани).",
       img: IMAGES.pass,
       fit: "contain",
     },
     {
-      title: "Схема: Движение при задимяване",
+      title: "Движение при задимяване",
       text: "Ниско до пода + кратко дишане през плат. Не бягай изправен през дим.",
       img: IMAGES.smokeLow,
       fit: "cover",
       pos: "center",
     },
     {
-      title: "Схема: Електрически пожар",
+      title: "Електрически пожар",
       text:
-        "Изключи захранването, ако е безопасно. Не използвай вода. Ползвай подходящ пожарогасител/прахов.",
+        "Изключи захранването, ако е безопасно. Не използвай вода. Ползвай подходящ пожарогасител.",
       img: IMAGES.electrical,
       fit: "cover",
       pos: "center",
@@ -272,7 +272,7 @@ export default function FireSafetyHub() {
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <h1 style={{ margin: 0, fontSize: 30, fontWeight: 950 }}>Пожарна безопасност</h1>
               <img
-                src="/images/logo.png"
+                src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png"
                 alt="Plamstop logo"
                 style={{
                   width: 34,
