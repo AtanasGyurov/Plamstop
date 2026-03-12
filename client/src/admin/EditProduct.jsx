@@ -209,11 +209,11 @@ export default function EditProduct() {
                   style={inputStyle}
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="/images/products/ime.jpg"
+                  placeholder="https://res.cloudinary.com/..."
                 />
                 <div className="muted" style={{ marginTop: 8, fontSize: 12, lineHeight: 1.4 }}>
-                  Сложи снимките в <strong>client/public/images/products</strong> и ползвай път като{" "}
-                  <strong>/images/products/ime.jpg</strong>
+                  Сложи снимките в Cloudify и
+              ползвай път като <strong>https://res.cloudinary.com/...</strong>
                 </div>
               </div>
             </div>

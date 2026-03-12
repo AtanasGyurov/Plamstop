@@ -47,7 +47,7 @@ export default function FireSafetyHub() {
     background: "rgba(255,122,24,0.18)",
   };
 
-  // Place files in: client/public/images/fire-safety/
+  
   const IMAGES = {
     hero: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330746/fire-hero_szloji.avif",
 

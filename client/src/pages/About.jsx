@@ -55,7 +55,7 @@ export default function About() {
     whiteSpace: "nowrap",
   };
 
-  // Images (place these later in client/public/images/about/)
+  // Images 
   const IMAGES = {
     hero: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329754/warehouse_bhrsyw.jpg", // hero background
     team: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329752/team_picture_jian9z.jpg", // team photo

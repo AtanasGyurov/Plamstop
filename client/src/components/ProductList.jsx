@@ -31,72 +31,72 @@ export default function ProductList({
       .replace(/co₂/g, "co2");
   }
 
-  // ✅ Robust mapping: normalized product name -> image path in /public/images/products
+ 
   const NAME_TO_IMAGE = useMemo(() => {
     const raw = {
       // Evacuation plans
       "Евакуационен план A2 (печат + ламиниране)":
-        "/images/products/evacuation-plan-a2.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326030/evacuation-plan-a2_x7yezl.jpg",
       "Евакуационен план A3 (печат + ламиниране)":
-        "/images/products/evacuation-plan-a3.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326030/evacuation-plan-a3_uqgtgd.jpg",
 
       // Extinguishers
       "Прахов пожарогасител 2 кг (ABC)":
-        "/images/products/extinguisher-2kg.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326032/extinguisher-2kg_utdmwm.jpg",
       "Прахов пожарогасител 6 кг (ABC)":
-        "/images/products/extinguisher-6kg.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773324894/extinguisher-6kg_teucht.webp",
       "CO₂ пожарогасител 5 кг (B)":
-        "/images/products/co2-extinguisher.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326027/co2-extinguisher_cv4rcl.jpg",
       "CO2 пожарогасител 5 кг (B)":
-        "/images/products/co2-extinguisher.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326027/co2-extinguisher_cv4rcl.jpg",
 
       // Hoses / nozzle
-      "Пожарен маркуч 20 м": "/images/products/fire-hose-20m.jpg",
+      "Пожарен маркуч 20 м": "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326036/fire-hose-20m_wu4fp4.jpg",
       "Пожарен струйник (регулируем)":
-        "/images/products/fire-nozzle.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326037/fire-nozzle_xtfzt0.jpg",
 
       // Blanket (common variants)
       "Пожарогасително одеяло 1.2x1.8 м":
-        "/images/products/fire-blanket.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/fire-blanket_xxzstg.jpg",
       "Пожарогасително одеяло 1.2×1.8 м":
-        "/images/products/fire-blanket.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/fire-blanket_xxzstg.jpg",
       "Пожарогасително одеяло 1.2 x 1.8 м":
-        "/images/products/fire-blanket.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/fire-blanket_xxzstg.jpg",
 
       // Alarm button / detectors
       "Ръчен пожароизвестител (бутон) – червен":
-        "/images/products/manual-fire-alarm.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326040/manual-fire-alarm_id1yaw.jpg",
       "Ръчен пожароизвестител (бутон) - червен":
-        "/images/products/manual-fire-alarm.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326040/manual-fire-alarm_id1yaw.jpg",
 
       "Димен детектор (батерия 9V)":
-        "/images/products/smoke-detector.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326044/smoke-detector_hzhkeb.jpg",
       "Топлинен детектор (термичен)":
-        "/images/products/heat-detector.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326044/smoke-detector_hzhkeb.jpg",
 
       // Sirens
       "Сирена вътрешна 24V (звук+светлина)":
-        "/images/products/alarm-siren-24v.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/alarm-siren-24v_ayak3g.jpg",
       "Сирена външна 24V (IP рейтинг)":
-        "/images/products/outdoor-siren.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326042/outdoor-siren_xkxs9t.jpg",
 
       // Emergency lighting
       "Аварийна лампа LED 6W (3 часа)":
-        "/images/products/emergency-lamp-6w.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/emergency-lamp-6w_r0jeqg.webp",
       "Аварийна лампа LED 3W (3 часа)":
-        "/images/products/emergency-lamp-3w.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/emergency-lamp-3w_zytplw.webp",
 
       // Tools
       "Фенер за аварийни проверки (LED)":
-        "/images/products/inspection-flashlight.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326039/inspection-flashlight_herfdj.jpg",
       "Манометър/тестер за налягане (преносим)":
-        "/images/products/pressure-tester.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326043/pressure-tester_otrqwq.webp",
 
       // Signs
       "Табела „Изход“ (фотолуминесцентна)":
-        "/images/products/exit-sign.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326031/exit-sign_y8kplx.jpg",
       "Табела „Пожарогасител“ (фотолуминесцентна)":
-        "/images/products/extinguisher-sign.jpg",
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/extinguisher-sign_crcdqu.jpg",
     };
 
     const map = {};
@@ -111,59 +111,59 @@ export default function ProductList({
   function guessByKeywords(n) {
     // evacuation plans
     if (n.includes("евакуационен") && n.includes("a2"))
-      return "/images/products/evacuation-plan-a2.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326030/evacuation-plan-a2_x7yezl.jpg";
     if (n.includes("евакуационен") && n.includes("a3"))
-      return "/images/products/evacuation-plan-a3.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326030/evacuation-plan-a3_uqgtgd.jpg";
 
     // extinguishers
     if (n.includes("прахов") && n.includes("2") && n.includes("кг"))
-      return "/images/products/extinguisher-2kg.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326032/extinguisher-2kg_utdmwm.jpg";
     if (n.includes("прахов") && n.includes("6") && n.includes("кг"))
-      return "/images/products/extinguisher-6kg.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773324894/extinguisher-6kg_teucht.webp";
     if (n.includes("co2") && n.includes("5") && n.includes("кг"))
-      return "/images/products/co2-extinguisher.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326027/co2-extinguisher_cv4rcl.jpg";
 
     // hose/nozzle
     if (n.includes("маркуч") && n.includes("20"))
-      return "/images/products/fire-hose-20m.jpg";
-    if (n.includes("струйник")) return "/images/products/fire-nozzle.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326036/fire-hose-20m_wu4fp4.jpg";
+    if (n.includes("струйник")) return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326037/fire-nozzle_xtfzt0.jpg";
 
     // blanket
     if (n.includes("одеяло") || n.includes("blanket"))
-      return "/images/products/fire-blanket.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/fire-blanket_xxzstg.jpg";
 
     // detectors
     if (n.includes("димен") && n.includes("детектор"))
-      return "/images/products/smoke-detector.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326044/smoke-detector_hzhkeb.jpg";
     if (n.includes("топлин") && n.includes("детектор"))
-      return "/images/products/heat-detector.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326038/heat-detector_z3g587.avif";
 
     // manual alarm button
     if (n.includes("ръчен") && (n.includes("пожароизвестител") || n.includes("бутон")))
-      return "/images/products/manual-fire-alarm.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326040/manual-fire-alarm_id1yaw.jpg";
 
     // sirens
     if (n.includes("сирена") && n.includes("вътреш"))
-      return "/images/products/alarm-siren-24v.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/alarm-siren-24v_ayak3g.jpg";
     if (n.includes("сирена") && n.includes("външ"))
-      return "/images/products/outdoor-siren.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326042/outdoor-siren_xkxs9t.jpg";
 
     // emergency lamps
     if (n.includes("аварийн") && n.includes("6w"))
-      return "/images/products/emergency-lamp-6w.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/emergency-lamp-6w_r0jeqg.webp";
     if (n.includes("аварийн") && n.includes("3w"))
-      return "/images/products/emergency-lamp-3w.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/emergency-lamp-3w_zytplw.webp";
 
     // tools
-    if (n.includes("фенер")) return "/images/products/inspection-flashlight.jpg";
+    if (n.includes("фенер")) return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326039/inspection-flashlight_herfdj.jpg";
     if (n.includes("маномет") || n.includes("тестер"))
-      return "/images/products/pressure-tester.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326043/pressure-tester_otrqwq.webp";
 
     // signs
     if (n.includes("табела") && n.includes("изход"))
-      return "/images/products/exit-sign.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326031/exit-sign_y8kplx.jpg";
     if (n.includes("табела") && n.includes("пожарогасител"))
-      return "/images/products/extinguisher-sign.jpg";
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/extinguisher-sign_crcdqu.jpg";
 
     return "";
   }

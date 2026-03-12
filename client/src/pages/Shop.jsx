@@ -14,7 +14,7 @@ function Shop() {
   // ✅ Category UI state
   const [selectedCat, setSelectedCat] = useState("all");
 
-  // ✅ Categories (matches your images in /public/images/categories)
+  // ✅ Categories 
   const categories = useMemo(
     () => [
       { key: "all", label: "Всички", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330074/project-site_nydpjz.jpg" },

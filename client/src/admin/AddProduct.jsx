@@ -187,11 +187,11 @@ export default function AddProduct() {
               style={input}
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="/images/products/extinguisher_6kg.jpg"
+              placeholder="https://res.cloudinary.com/..."
             />
             <div style={help} className="muted">
-              Сложи снимките в <strong>client/public/images/products</strong> и
-              ползвай път като <strong>/images/products/ime.jpg</strong>
+              Сложи снимките в Cloudify и
+              ползвай път като <strong>https://res.cloudinary.com/...</strong>
             </div>
           </div>
         </div>

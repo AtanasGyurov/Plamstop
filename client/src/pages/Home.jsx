@@ -165,7 +165,7 @@ export default function Home() {
             {[
               {
                 title: "Магазин и доставки",
-                image: "/images/categories/extinguishers.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329991/extinguishers_bzv8rz.jpg",
                 imageAlt: "Пожарогасители",
                 points: [
                   "Пожарогасители, маркучи, хидранти, шкафове",
@@ -175,7 +175,7 @@ export default function Home() {
               },
               {
                 title: "Евакуационни планове",
-                image: "/images/categories/evacuation-plans.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330071/evacuation-plans_ez54zo.jpg",
                 imageAlt: "Евакуационни планове",
                 points: [
                   "Персонализирани схеми и маршрути",
@@ -185,7 +185,7 @@ export default function Home() {
               },
               {
                 title: "Пожароизвестяване",
-                image: "/images/categories/fire-alarm.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330062/fire-alarm_kvzaqv.jpg",
                 imageAlt: "Пожароизвестяване",
                 points: [
                   "Проектиране и монтаж на аларми",
@@ -255,32 +255,32 @@ export default function Home() {
             {[
               {
                 label: "Преносими пожарогасители",
-                image: "/images/categories/extinguishers.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329991/extinguishers_bzv8rz.jpg",
                 imageAlt: "Преносими пожарогасители",
               },
               {
                 label: "Алармени панели и сирени",
-                image: "/images/categories/alarm-panels.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330066/alarm-panels_yddlu4.jpg",
                 imageAlt: "Алармени панели и сирени",
               },
               {
                 label: "Аварийно осветление",
-                image: "/images/categories/emergency-lighting.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330069/emergency-lighting_cijsnj.jpg",
                 imageAlt: "Аварийно осветление",
               },
               {
                 label: "Хидранти и маркучи",
-                image: "/images/categories/hydrants-hoses.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330064/hydrants-hoses_ffe5or.jpg",
                 imageAlt: "Хидранти и маркучи",
               },
               {
                 label: "Евакуационни табели",
-                image: "/images/categories/exit-signs.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329989/exit-signs_tsmpct.jpg",
                 imageAlt: "Евакуационни табели",
               },
               {
                 label: "Инструменти за инспекция",
-                image: "/images/categories/inspection-tools.jpg",
+                image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330076/inspection-tools_yyx2xg.jpg",
                 imageAlt: "Инструменти за инспекция",
               },
               ].map((item) => (
@@ -306,7 +306,7 @@ export default function Home() {
                   }}
                 />
                 <strong>{item.label}</strong>
-                <div className="muted">Пакет или водеща марка</div>
+                
               </div>
             ))}
           </div>
@@ -380,7 +380,7 @@ export default function Home() {
             }}
           >
             <img
-              src="/images/categories/project-site.jpg"
+              src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330074/project-site_nydpjz.jpg"
               alt="?????? ?? ?????"
               style={{
                 width: "100%",

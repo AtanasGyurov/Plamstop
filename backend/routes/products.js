@@ -52,7 +52,7 @@ router.post("/", checkAuth, checkRole("admin"), async (req, res) => {
 
       // ✅ NEW
       description: cleanStr(data.description),
-      imageUrl: cleanStr(data.imageUrl), // e.g. "/images/products/abc.jpg"
+      imageUrl: cleanStr(data.imageUrl), 
 
       createdAt: new Date(),
       updatedAt: new Date(),
