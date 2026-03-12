@@ -387,9 +387,7 @@ export default function About() {
             <div key={g.title} style={card}>
               <ImgBlock src={g.src} alt={g.title} height={170} />
               <div style={{ marginTop: 10, fontWeight: 900 }}>{g.title}</div>
-              <div style={{ ...muted, marginTop: 4 }}>
-                (Изображение за showcase — може да се замени с реални снимки по-късно.)
-              </div>
+              
             </div>
           ))}
         </div>

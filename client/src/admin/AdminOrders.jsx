@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import api from "../api";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -35,13 +36,9 @@ export default function AdminOrders() {
     if (!token) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/orders/admin/orders", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/orders/admin/orders");
 
-      if (!res.ok) throw new Error("Failed to load admin orders");
-
-      const data = await res.json();
+      const data = res.data;
       setOrders(data);
       setFilteredOrders(applyFilter(data, filter));
     } catch (err) {
@@ -68,17 +65,7 @@ export default function AdminOrders() {
     if (!window.confirm(`Да променим ли статуса на „${label}“?`)) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!res.ok) throw new Error("Status update failed");
-
+      await api.patch(`/orders/${id}/status`, { status: newStatus });
       loadOrders();
     } catch (err) {
       console.error("Update error:", err);
@@ -94,16 +81,7 @@ export default function AdminOrders() {
     if (!window.confirm("Да изтрием ли поръчката завинаги?")) return;
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/orders/admin/orders/${id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (!res.ok) throw new Error("Delete failed");
-
+      await api.delete(`/orders/admin/orders/${id}`);
       setOrders((prev) => prev.filter((o) => o.id !== id));
     } catch (err) {
       console.error("Delete error:", err);
