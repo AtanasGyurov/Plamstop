@@ -311,3 +311,77 @@
   border-color: rgba(255, 122, 24, 0.45);
   box-shadow: 0 0 0 3px rgba(255, 122, 24, 0.15);
 }
+
+/* ================= MOBILE NAVBAR ================= */
+
+/* Hamburger button */
+.mobileMenuBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  .headerInner,
+  .headerInnerFull {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .left {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* show hamburger */
+  .mobileMenuBtn {
+    display: inline-flex;
+  }
+
+  /* hide menus by default */
+  .navLinks,
+  .navRight {
+    display: none;
+    width: 100%;
+  }
+
+  /* show when open */
+  .navLinks.mobileOpen,
+  .navRight.mobileOpen {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .navLinks.mobileOpen {
+    margin-top: 12px;
+  }
+
+  .navRight.mobileOpen {
+    margin-top: 10px;
+  }
+
+  /* full-width buttons */
+  .navBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* fix text wrapping */
+  .whoami {
+    white-space: normal;
+    text-align: center;
+  }
+}

@@ -1,10 +1,27 @@
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useCart } from "../cart/CartContext";
 
 export default function Navbar({ onOpenCart }) {
   const { user, role, logout } = useAuth();
   const { totalQty } = useCart();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth > 768) {
+        setMobileOpen(false);
+      }
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  function closeMobileMenu() {
+    setMobileOpen(false);
+  }
 
   return (
     <header className="siteHeader">
@@ -19,9 +36,20 @@ export default function Navbar({ onOpenCart }) {
             />
           </div>
 
-          <nav className="navLinks">
+          {/* ✅ Hamburger button */}
+          <button
+            type="button"
+            className="mobileMenuBtn"
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            {mobileOpen ? "✕" : "☰"}
+          </button>
+
+          {/* ✅ LEFT NAV */}
+          <nav className={`navLinks ${mobileOpen ? "mobileOpen" : ""}`}>
             <NavLink
               to="/"
+              onClick={closeMobileMenu}
               className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
             >
               Начало
@@ -29,6 +57,7 @@ export default function Navbar({ onOpenCart }) {
 
             <NavLink
               to="/about"
+              onClick={closeMobileMenu}
               className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
             >
               За нас
@@ -36,6 +65,7 @@ export default function Navbar({ onOpenCart }) {
 
             <NavLink
               to="/shop"
+              onClick={closeMobileMenu}
               className={({ isActive }) =>
                 `navBtn ${isActive ? "active accent" : ""}`
               }
@@ -43,9 +73,9 @@ export default function Navbar({ onOpenCart }) {
               Магазин
             </NavLink>
 
-            
             <NavLink
               to="/fire-safety"
+              onClick={closeMobileMenu}
               className={({ isActive }) =>
                 `navBtn ${isActive ? "active accent" : ""}`
               }
@@ -55,6 +85,7 @@ export default function Navbar({ onOpenCart }) {
 
             <NavLink
               to="/contacts"
+              onClick={closeMobileMenu}
               className={({ isActive }) => `navBtn ${isActive ? "active" : ""}`}
             >
               Контакти
@@ -62,42 +93,61 @@ export default function Navbar({ onOpenCart }) {
           </nav>
         </div>
 
-        <div className="navRight">
+        {/* ✅ RIGHT SIDE */}
+        <div className={`navRight ${mobileOpen ? "mobileOpen" : ""}`}>
           {!user ? (
-            <NavLink to="/auth/login" className="navBtn">
+            <NavLink
+              to="/auth/login"
+              className="navBtn"
+              onClick={closeMobileMenu}
+            >
               Вход / Регистрация
             </NavLink>
           ) : (
             <>
-              {/* ✅ WHOAMI FIRST */}
               <div className="whoami">
                 Влезли сте като <strong>{user.email}</strong>{" "}
                 <span className="muted">({role})</span>
               </div>
 
-              {/* ✅ CART AFTER WHOAMI */}
               <button
                 type="button"
                 className="navBtn"
-                onClick={onOpenCart}
-                aria-label="Отвори количката"
+                onClick={() => {
+                  onOpenCart?.();
+                  closeMobileMenu();
+                }}
               >
                 Количка <span className="badge">{totalQty}</span>
               </button>
 
               {role !== "admin" && (
-                <NavLink to="/my-orders" className="navBtn">
+                <NavLink
+                  to="/my-orders"
+                  className="navBtn"
+                  onClick={closeMobileMenu}
+                >
                   Моите поръчки
                 </NavLink>
               )}
 
               {role === "admin" && (
-                <NavLink to="/admin" className="navBtn danger">
+                <NavLink
+                  to="/admin"
+                  className="navBtn danger"
+                  onClick={closeMobileMenu}
+                >
                   Администрация
                 </NavLink>
               )}
 
-              <button className="navBtn danger" onClick={logout}>
+              <button
+                className="navBtn danger"
+                onClick={() => {
+                  closeMobileMenu();
+                  logout();
+                }}
+              >
                 Изход
               </button>
             </>
