@@ -8,9 +8,12 @@ export default function ProductList({
 }) {
   const [openId, setOpenId] = useState(null);
 
+  // ✅ make sure products is always an array
+  const safeProducts = Array.isArray(products) ? products : [];
+
   const openProduct = useMemo(
-    () => products.find((p) => p.id === openId) || null,
-    [openId, products]
+    () => safeProducts.find((p) => p.id === openId) || null,
+    [openId, safeProducts]
   );
 
   function prettyCategory(raw) {
@@ -18,7 +21,6 @@ export default function ProductList({
     return categoryLabelMap[key] || key || "";
   }
 
-  // ✅ Normalize product name so images match even if DB text differs slightly
   function normalizeName(s) {
     return (s || "")
       .toString()
@@ -31,16 +33,13 @@ export default function ProductList({
       .replace(/co₂/g, "co2");
   }
 
- 
   const NAME_TO_IMAGE = useMemo(() => {
     const raw = {
-      // Evacuation plans
       "Евакуационен план A2 (печат + ламиниране)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326030/evacuation-plan-a2_x7yezl.jpg",
       "Евакуационен план A3 (печат + ламиниране)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326030/evacuation-plan-a3_uqgtgd.jpg",
 
-      // Extinguishers
       "Прахов пожарогасител 2 кг (ABC)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326032/extinguisher-2kg_utdmwm.jpg",
       "Прахов пожарогасител 6 кг (ABC)":
@@ -50,12 +49,11 @@ export default function ProductList({
       "CO2 пожарогасител 5 кг (B)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326027/co2-extinguisher_cv4rcl.jpg",
 
-      // Hoses / nozzle
-      "Пожарен маркуч 20 м": "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326036/fire-hose-20m_wu4fp4.jpg",
+      "Пожарен маркуч 20 м":
+        "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326036/fire-hose-20m_wu4fp4.jpg",
       "Пожарен струйник (регулируем)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326037/fire-nozzle_xtfzt0.jpg",
 
-      // Blanket (common variants)
       "Пожарогасително одеяло 1.2x1.8 м":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/fire-blanket_xxzstg.jpg",
       "Пожарогасително одеяло 1.2×1.8 м":
@@ -63,7 +61,6 @@ export default function ProductList({
       "Пожарогасително одеяло 1.2 x 1.8 м":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/fire-blanket_xxzstg.jpg",
 
-      // Alarm button / detectors
       "Ръчен пожароизвестител (бутон) – червен":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326040/manual-fire-alarm_id1yaw.jpg",
       "Ръчен пожароизвестител (бутон) - червен":
@@ -74,25 +71,21 @@ export default function ProductList({
       "Топлинен детектор (термичен)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326044/smoke-detector_hzhkeb.jpg",
 
-      // Sirens
       "Сирена вътрешна 24V (звук+светлина)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/alarm-siren-24v_ayak3g.jpg",
       "Сирена външна 24V (IP рейтинг)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326042/outdoor-siren_xkxs9t.jpg",
 
-      // Emergency lighting
       "Аварийна лампа LED 6W (3 часа)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/emergency-lamp-6w_r0jeqg.webp",
       "Аварийна лампа LED 3W (3 часа)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/emergency-lamp-3w_zytplw.webp",
 
-      // Tools
       "Фенер за аварийни проверки (LED)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326039/inspection-flashlight_herfdj.jpg",
       "Манометър/тестер за налягане (преносим)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326043/pressure-tester_otrqwq.webp",
 
-      // Signs
       "Табела „Изход“ (фотолуминесцентна)":
         "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326031/exit-sign_y8kplx.jpg",
       "Табела „Пожарогасител“ (фотолуминесцентна)":
@@ -104,18 +97,14 @@ export default function ProductList({
       map[normalizeName(k)] = v;
     }
     return map;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ✅ keyword fallback (covers small DB name differences)
   function guessByKeywords(n) {
-    // evacuation plans
     if (n.includes("евакуационен") && n.includes("a2"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326030/evacuation-plan-a2_x7yezl.jpg";
     if (n.includes("евакуационен") && n.includes("a3"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326030/evacuation-plan-a3_uqgtgd.jpg";
 
-    // extinguishers
     if (n.includes("прахов") && n.includes("2") && n.includes("кг"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326032/extinguisher-2kg_utdmwm.jpg";
     if (n.includes("прахов") && n.includes("6") && n.includes("кг"))
@@ -123,43 +112,37 @@ export default function ProductList({
     if (n.includes("co2") && n.includes("5") && n.includes("кг"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326027/co2-extinguisher_cv4rcl.jpg";
 
-    // hose/nozzle
     if (n.includes("маркуч") && n.includes("20"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326036/fire-hose-20m_wu4fp4.jpg";
-    if (n.includes("струйник")) return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326037/fire-nozzle_xtfzt0.jpg";
+    if (n.includes("струйник"))
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326037/fire-nozzle_xtfzt0.jpg";
 
-    // blanket
     if (n.includes("одеяло") || n.includes("blanket"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326034/fire-blanket_xxzstg.jpg";
 
-    // detectors
     if (n.includes("димен") && n.includes("детектор"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326044/smoke-detector_hzhkeb.jpg";
     if (n.includes("топлин") && n.includes("детектор"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326038/heat-detector_z3g587.avif";
 
-    // manual alarm button
     if (n.includes("ръчен") && (n.includes("пожароизвестител") || n.includes("бутон")))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326040/manual-fire-alarm_id1yaw.jpg";
 
-    // sirens
     if (n.includes("сирена") && n.includes("вътреш"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/alarm-siren-24v_ayak3g.jpg";
     if (n.includes("сирена") && n.includes("външ"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326042/outdoor-siren_xkxs9t.jpg";
 
-    // emergency lamps
     if (n.includes("аварийн") && n.includes("6w"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/emergency-lamp-6w_r0jeqg.webp";
     if (n.includes("аварийн") && n.includes("3w"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326028/emergency-lamp-3w_zytplw.webp";
 
-    // tools
-    if (n.includes("фенер")) return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326039/inspection-flashlight_herfdj.jpg";
+    if (n.includes("фенер"))
+      return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326039/inspection-flashlight_herfdj.jpg";
     if (n.includes("маномет") || n.includes("тестер"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326043/pressure-tester_otrqwq.webp";
 
-    // signs
     if (n.includes("табела") && n.includes("изход"))
       return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773326031/exit-sign_y8kplx.jpg";
     if (n.includes("табела") && n.includes("пожарогасител"))
@@ -169,7 +152,6 @@ export default function ProductList({
   }
 
   function getImg(p) {
-    // if DB provides it, use it
     const dbUrl = (p?.imageUrl || "").toString().trim();
     if (dbUrl) return dbUrl;
 
@@ -182,7 +164,6 @@ export default function ProductList({
     return "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
   }
 
-  // ✅ ONE consistent “square frame” everywhere (like your screenshot)
   const thumbFrameStyle = {
     width: "min(180px, 90%)",
     aspectRatio: "1 / 1",
@@ -197,12 +178,11 @@ export default function ProductList({
   const thumbImgStyle = {
     width: "100%",
     height: "100%",
-    objectFit: "contain", // ✅ never crop
+    objectFit: "contain",
     display: "block",
-    padding: 10, // ✅ keeps it “nice” inside the square frame
+    padding: 10,
   };
 
-  // Card media area (holds the square frame)
   const cardMediaStyle = {
     height: 190,
     borderBottom: "1px solid rgba(255,255,255,0.10)",
@@ -213,7 +193,6 @@ export default function ProductList({
     padding: 14,
   };
 
-  // Modal media area (holds a larger square frame)
   const modalMediaStyle = {
     maxHeight: "48vh",
     minHeight: 240,
@@ -257,7 +236,7 @@ export default function ProductList({
           alignItems: "stretch",
         }}
       >
-        {products.map((p) => (
+        {safeProducts.map((p) => (
           <article
             key={p.id}
             style={{
@@ -271,7 +250,6 @@ export default function ProductList({
               minHeight: 280,
             }}
           >
-            {/* ✅ Card image (square frame like your screenshot) */}
             <div style={cardMediaStyle}>
               <div style={thumbFrameStyle}>
                 <img
@@ -280,7 +258,8 @@ export default function ProductList({
                   style={thumbImgStyle}
                   loading="lazy"
                   onError={(e) => {
-                    e.currentTarget.src = "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
+                    e.currentTarget.src =
+                      "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
                   }}
                 />
               </div>
@@ -329,7 +308,6 @@ export default function ProductList({
                 >
                   Виж детайли
                 </button>
-
                 <button
                   type="button"
                   onClick={() => onAddToCart?.(p)}
@@ -352,7 +330,6 @@ export default function ProductList({
         ))}
       </div>
 
-      {/* ✅ MODAL */}
       {openProduct && (
         <div
           onClick={() => setOpenId(null)}
@@ -380,7 +357,6 @@ export default function ProductList({
               gridTemplateRows: "auto auto 1fr",
             }}
           >
-            {/* Header */}
             <div
               style={{
                 padding: 14,
@@ -390,9 +366,7 @@ export default function ProductList({
                 borderBottom: "1px solid rgba(255,255,255,0.10)",
               }}
             >
-              <div style={{ fontWeight: 900, fontSize: 18 }}>
-                {openProduct.name}
-              </div>
+              <div style={{ fontWeight: 900, fontSize: 18 }}>{openProduct.name}</div>
               <button
                 type="button"
                 onClick={() => setOpenId(null)}
@@ -410,7 +384,6 @@ export default function ProductList({
               </button>
             </div>
 
-            {/* ✅ Modal image placeholder (square, fixed, not broken) */}
             <div style={modalMediaStyle}>
               <div style={modalFrameStyle}>
                 <img
@@ -418,13 +391,13 @@ export default function ProductList({
                   alt={openProduct.name}
                   style={modalImgStyle}
                   onError={(e) => {
-                    e.currentTarget.src = "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
+                    e.currentTarget.src =
+                      "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png";
                   }}
                 />
               </div>
             </div>
 
-            {/* Info (scrolls if long) */}
             <div style={{ padding: 16, overflow: "auto", display: "grid", gap: 10 }}>
               <div style={{ opacity: 0.9 }}>
                 <strong>Цена:</strong> {Number(openProduct.price || 0).toFixed(2)} евро
@@ -461,7 +434,6 @@ export default function ProductList({
                 >
                   Добави в количката
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setOpenId(null)}

@@ -1,48 +1,90 @@
 // client/src/pages/Shop.jsx
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api";
 import ProductList from "../components/ProductList";
 import { useCart } from "../cart/CartContext";
+import { useAuth } from "../auth/AuthContext";
 
 function Shop() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedCat, setSelectedCat] = useState("all");
+  const [loginPopupOpen, setLoginPopupOpen] = useState(false);
 
   const { addToCart } = useCart();
+  const { user, loading: authLoading } = useAuth();
 
-  // ✅ Category UI state
-  const [selectedCat, setSelectedCat] = useState("all");
-
-  // ✅ Categories 
   const categories = useMemo(
     () => [
-      { key: "all", label: "Всички", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330074/project-site_nydpjz.jpg" },
-      { key: "extinguishers", label: "Преносими пожарогасители", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329991/extinguishers_bzv8rz.jpg" },
-      { key: "fire-alarm", label: "Пожароизвестяване", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330062/fire-alarm_kvzaqv.jpg" },
-      { key: "alarm-panels", label: "Алармени панели и сирени", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330066/alarm-panels_yddlu4.jpg" },
-      { key: "emergency-lighting", label: "Аварийно осветление", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330069/emergency-lighting_cijsnj.jpg" },
-      { key: "hydrants-hoses", label: "Хидранти и маркучи", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330064/hydrants-hoses_ffe5or.jpg" },
-      { key: "exit-signs", label: "Евакуационни табели", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329989/exit-signs_tsmpct.jpg" },
-      { key: "inspection-tools", label: "Инструменти за инспекция", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330076/inspection-tools_yyx2xg.jpg" },
-      { key: "evacuation-plans", label: "Евакуационни планове", image: "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330071/evacuation-plans_ez54zo.jpg" },
+      {
+        key: "all",
+        label: "Всички",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330074/project-site_nydpjz.jpg",
+      },
+      {
+        key: "extinguishers",
+        label: "Преносими пожарогасители",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329991/extinguishers_bzv8rz.jpg",
+      },
+      {
+        key: "fire-alarm",
+        label: "Пожароизвестяване",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330062/fire-alarm_kvzaqv.jpg",
+      },
+      {
+        key: "alarm-panels",
+        label: "Алармени панели и сирени",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330066/alarm-panels_yddlu4.jpg",
+      },
+      {
+        key: "emergency-lighting",
+        label: "Аварийно осветление",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330069/emergency-lighting_cijsnj.jpg",
+      },
+      {
+        key: "hydrants-hoses",
+        label: "Хидранти и маркучи",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330064/hydrants-hoses_ffe5or.jpg",
+      },
+      {
+        key: "exit-signs",
+        label: "Евакуационни табели",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773329989/exit-signs_tsmpct.jpg",
+      },
+      {
+        key: "inspection-tools",
+        label: "Инструменти за инспекция",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330076/inspection-tools_yyx2xg.jpg",
+      },
+      {
+        key: "evacuation-plans",
+        label: "Евакуационни планове",
+        image:
+          "https://res.cloudinary.com/dlcqynjeq/image/upload/v1773330071/evacuation-plans_ez54zo.jpg",
+      },
     ],
     []
   );
 
-  // ✅ Build a label map so ProductList shows Bulgarian labels instead of raw keys
-  // Also includes aliases for older/incorrect stored values (like "firesafety")
   const categoryLabelMap = useMemo(() => {
     const map = {};
 
-    // keys -> labels from your categories list
     for (const c of categories) {
       map[c.key] = c.label;
-      map[c.label] = c.label; // if DB already stores label, keep it as-is
+      map[c.label] = c.label;
     }
 
-    // ✅ aliases (add more here if you have older values in DB)
-    map["firesafety"] = "Преносими пожарогасители"; // your old value -> pick best match
+    map["firesafety"] = "Преносими пожарогасители";
     map["firealarm"] = "Пожароизвестяване";
     map["alarm_panels"] = "Алармени панели и сирени";
     map["emergencyLighting"] = "Аварийно осветление";
@@ -66,34 +108,50 @@ function Shop() {
         setLoading(false);
       }
     }
+
     load();
   }, []);
 
-  // ✅ Filter products by category (supports: key OR label OR aliases via categoryLabelMap)
+  // ✅ make sure products is always an array
+  const safeProducts = Array.isArray(products) ? products : [];
+
   const filteredProducts = useMemo(() => {
-    if (selectedCat === "all") return products;
+    if (selectedCat === "all") return safeProducts;
 
     const selected = categories.find((c) => c.key === selectedCat);
     const selectedLabel = selected?.label || "";
 
-    return products.filter((p) => {
+    return safeProducts.filter((p) => {
       const raw = (p.category || "").toString().trim();
-      const pretty = categoryLabelMap[raw] || raw; // normalize old values
+      const pretty = categoryLabelMap[raw] || raw;
 
-      // match if DB stored: key, label, or alias -> label
       return raw === selectedCat || raw === selectedLabel || pretty === selectedLabel;
     });
-  }, [products, selectedCat, categories, categoryLabelMap]);
+  }, [safeProducts, selectedCat, categories, categoryLabelMap]);
+
+  function handleAddToCart(product) {
+    if (authLoading) return;
+
+    if (!user) {
+      setLoginPopupOpen(true);
+      return;
+    }
+
+    addToCart(product);
+  }
 
   return (
     <div className="container">
       <h1 className="pageTitle">
         Plamstop{" "}
-        <img className="inlineLogo" src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png" alt="Plamstop logo" />
+        <img
+          className="inlineLogo"
+          src="https://res.cloudinary.com/dlcqynjeq/image/upload/v1773331523/logo_acsjmi.png"
+          alt="Plamstop logo"
+        />
       </h1>
       <p className="muted">Магазин за пожарна безопасност</p>
 
-      {/* ✅ CATEGORIES */}
       <h2 style={{ marginTop: 18, marginBottom: 12 }}>Категории</h2>
 
       <div
@@ -157,12 +215,85 @@ function Shop() {
       {loading && <p>Зареждане на продукти…</p>}
       {error && <p className="textError">{error}</p>}
 
-      {/* ✅ products filtered + ✅ pass categoryLabelMap so tags show Bulgarian */}
       <ProductList
         products={filteredProducts}
-        onAddToCart={addToCart}
+        onAddToCart={handleAddToCart}
         categoryLabelMap={categoryLabelMap}
       />
+
+      {loginPopupOpen && (
+        <div
+          onClick={() => setLoginPopupOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.55)",
+            display: "grid",
+            placeItems: "center",
+            padding: 18,
+            zIndex: 3000,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "min(460px, 100%)",
+              borderRadius: 18,
+              border: "1px solid rgba(255,255,255,0.14)",
+              background: "rgba(10,12,18,0.96)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.45)",
+              padding: 20,
+              display: "grid",
+              gap: 14,
+            }}
+          >
+            <div style={{ fontSize: 20, fontWeight: 900 }}>
+              Нужно е влизане в профила
+            </div>
+
+            <div style={{ color: "rgba(255,255,255,0.82)", lineHeight: 1.6 }}>
+              За да добавяте продукти в количката, трябва първо да влезете в профила си.
+            </div>
+
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Link
+                to="/auth"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "10px 14px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,122,24,0.35)",
+                  background: "rgba(255,122,24,0.18)",
+                  color: "rgba(255,255,255,0.95)",
+                  textDecoration: "none",
+                  fontWeight: 900,
+                }}
+                onClick={() => setLoginPopupOpen(false)}
+              >
+                Вход
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setLoginPopupOpen(false)}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  background: "rgba(255,255,255,0.05)",
+                  color: "rgba(255,255,255,0.92)",
+                  cursor: "pointer",
+                  fontWeight: 800,
+                }}
+              >
+                Затвори
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
